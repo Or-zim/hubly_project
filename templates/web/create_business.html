@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+    <div class="col-md-6">
+        <div class="hub-form-card">
+            <div class="hub-form-title">🏢 Новый бизнес</div>
+            <div class="hub-form-subtitle">
+                Заполните базовые данные. Остальные настройки вы сможете сделать позже.
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="hub-micro text-danger mt-1">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'web:dashboard' %}" class="hub-btn hub-btn-ghost">Отмена</a>
+                    <button type="submit" class="hub-btn hub-btn-primary">
+                        Создать бизнес
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

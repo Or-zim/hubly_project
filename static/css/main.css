@@ -1,0 +1,311 @@
+/* ====== БАЗОВАЯ ТЕМА ====== */
+
+:root {
+    --hub-bg: #050816;
+    --hub-bg-elevated: #0b1120;
+    --hub-bg-elevated-2: #020617;
+    --hub-border-subtle: rgba(148, 163, 184, 0.25);
+
+    --hub-primary: #2563eb;          /* насыщенный синий */
+    --hub-primary-soft: #1d4ed8;
+    --hub-primary-glow: rgba(37, 99, 235, 0.5);
+
+    --hub-text-main: #e5e7eb;        /* почти белый */
+    --hub-text-muted: #9ca3af;       /* серый */
+    --hub-text-accent: #f9fafb;
+
+    --hub-danger: #ef4444;
+    --hub-success: #22c55e;
+    --hub-warning: #facc15;
+
+    --hub-radius-lg: 18px;
+    --hub-radius-md: 12px;
+    --hub-radius-sm: 8px;
+
+    --hub-shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.6);
+}
+
+/* ====== ОБЩЕЕ ОФОРМЛЕНИЕ ====== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body.hub-body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--hub-text-main);
+    background: radial-gradient(circle at top, #111827 0, #020617 40%, #000 100%);
+}
+
+/* Центральная "карта" */
+
+.hub-shell {
+    max-width: 1280px;
+    margin: 24px auto;
+    padding: 24px 24px 36px;
+    border-radius: 24px;
+    background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.28), transparent 55%),
+                radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.95), #020617);
+    box-shadow: var(--hub-shadow-soft);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+.hub-shell::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    pointer-events: none;
+}
+
+/* ====== НАВБАР ====== */
+
+.hub-navbar {
+    padding: 8px 4px 18px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+    margin-bottom: 12px;
+}
+
+.hub-logo-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(59, 130, 246, 0.3));
+    box-shadow: 0 0 18px rgba(37, 99, 235, 0.7);
+}
+
+.hub-logo-text {
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: var(--hub-text-accent);
+}
+
+/* ====== ПОЛЬЗОВАТЕЛЬ ====== */
+
+.hub-user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.hub-user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #0b1120;
+    background: linear-gradient(135deg, #f9fafb, #e5e7eb);
+}
+
+.hub-user-name {
+    font-size: 0.8rem;
+    color: var(--hub-text-main);
+}
+
+.hub-text-muted {
+    color: var(--hub-text-muted);
+    font-size: 0.85rem;
+}
+
+/* ====== МЕЙН ====== */
+
+.hub-main {
+    padding-top: 8px;
+}
+
+/* ====== СООБЩЕНИЯ ====== */
+
+.hub-messages {
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+.hub-alert-success {
+    background: rgba(22, 163, 74, 0.08);
+    border-color: rgba(22, 163, 74, 0.45);
+    color: #bbf7d0;
+}
+
+.hub-alert-error,
+.hub-alert-danger {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: #fecaca;
+}
+
+.hub-alert-info {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.45);
+    color: #bfdbfe;
+}
+
+/* ====== КНОПКИ ====== */
+
+.hub-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s ease-out;
+}
+
+.hub-btn-sm {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+}
+
+.hub-btn-primary {
+    background: linear-gradient(135deg, var(--hub-primary), var(--hub-primary-soft));
+    color: #f9fafb;
+    box-shadow: 0 0 18px var(--hub-primary-glow);
+}
+
+.hub-btn-primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.hub-btn-ghost {
+    background: transparent;
+    color: var(--hub-text-main);
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.hub-btn-ghost:hover {
+    background: rgba(15, 23, 42, 0.75);
+}
+
+/* ====== ПАНЕЛИ / КАРТОЧКИ ====== */
+
+.hub-panel {
+    border-radius: var(--hub-radius-lg);
+    background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.85), var(--hub-bg-elevated));
+    border: 1px solid var(--hub-border-subtle);
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hub-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 55%);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.hub-panel-header {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 10px;
+}
+
+.hub-panel-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--hub-text-accent);
+}
+
+.hub-panel-subtitle {
+    font-size: 0.85rem;
+    color: var(--hub-text-muted);
+}
+
+/* ====== ФОРМЫ ====== */
+
+.hub-form-card {
+    border-radius: var(--hub-radius-lg);
+    background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), #020617);
+    border: 1px solid var(--hub-border-subtle);
+    padding: 24px 24px 20px;
+}
+
+.hub-form-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--hub-text-accent);
+}
+
+.hub-form-subtitle {
+    font-size: 0.85rem;
+    color: var(--hub-text-muted);
+    margin-bottom: 18px;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    color: var(--hub-text-muted);
+    margin-bottom: 4px;
+}
+
+.form-control,
+.form-select {
+    background-color: #020617;
+    border-radius: var(--hub-radius-sm);
+    border: 1px solid rgba(55, 65, 81, 0.8);
+    color: var(--hub-text-main);
+    font-size: 0.9rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--hub-primary);
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.65);
+    background-color: #020617;
+    color: var(--hub-text-main);
+}
+
+/* ====== ТАБЛИЦЫ/СПИСКИ (для будущих списков заказов/бизнесов) ====== */
+
+.hub-list-item {
+    padding: 10px 14px;
+    border-radius: var(--hub-radius-md);
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(75, 85, 99, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    transition: all 0.15s ease-out;
+}
+
+.hub-list-item:hover {
+    border-color: rgba(129, 140, 248, 0.9);
+    box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
+}
+
+/* Маленький текст-подпись */
+
+.hub-micro {
+    font-size: 0.75rem;
+    color: var(--hub-text-muted);
+}

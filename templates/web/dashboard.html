@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-md-8">
+        <section class="hub-panel">
+            <div class="hub-panel-header">
+                <div class="hub-panel-title">
+                    👋 Добро пожаловать, {{ user.first_name|default:user.username }}!
+                </div>
+                <div class="hub-panel-subtitle">
+                    Это ваша панель управления. Здесь ваши бизнесы и ключевые показатели.
+                </div>
+            </div>
+
+            <hr class="border-secondary border-opacity-25 my-3">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="hub-micro text-uppercase">Ваши бизнесы</span>
+                <a href="{% url 'web:create_business' %}" class="hub-btn hub-btn-sm hub-btn-primary">
+                    + Новый бизнес
+                </a>
+            </div>
+
+            {% if businesses %}
+                {% for b in businesses %}
+                    <div class="hub-list-item">
+                        <div>
+                            <div class="fw-semibold">{{ b.name }}</div>
+                            <div class="hub-micro text-muted">
+                                Создан: {{ b.created_at|date:"d.m.Y" }}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm">Открыть</a>
+                            {# сюда позже добавим переход в подробную страницу бизнеса #}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="hub-micro text-muted mt-2">
+                    У вас пока нет бизнесов. Нажмите «Новый бизнес», чтобы создать первый.
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    <div class="col-md-4">
+        <section class="hub-panel">
+            <div class="hub-panel-header">
+                <div class="hub-panel-title">Профиль</div>
+                <div class="hub-panel-subtitle hub-micro">
+                    Telegram ID: {{ user.telegram_id }}
+                </div>
+            </div>
+            <!-- сюда потом добавим ещё поля профиля -->
+        </section>
+    </div>
+</div>
+{% endblock %}
