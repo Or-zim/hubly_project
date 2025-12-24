@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from pydantic import ValidationError
 from users.models import AuthToken
-from businesses.models import Business
+from businesses.models import Business, Module
 from .forms import BusinessCreationForm
 from django.contrib import messages
+from sales.services import process_order_sale
+
 
 
 
@@ -31,18 +34,33 @@ def dashboard(request):
     return render(request, 'web/dashboard.html', context)
 
 
+@login_required
+def complete_sale(request, order_id):
+    try:
+        process_order_sale(order_id)
+        messages.success(request, "Продажа успешно завершена! Склад обновлен.")
+    except ValidationError as e:
+        messages.error(request, str(e))
+
+    return redirect('web:order_detail', order_id=order_id)
+
 
 @login_required
-def create_business_view(request):
-    if request.method =='POST':
-        form = BusinessCreationForm(request.POST)
-        if form.is_valid():
-            business = form.save(commit=False)
-            business.owner = request.user
-            business.save()
-            messages.success(request, "Бизнес успешно создан 🎉")
-            return redirect('web:dashboard')
-    else:
-        form = BusinessCreationForm()
+def create_business_wizard(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        niche = request.POST.get('niche')
+        selected_modules = request.POST.getlist('modules')
+        
+        business = Business.objects.create(owner=request.user, name=name, niche=niche)
+
+        modules = Module.objects.filter(slug__in=selected_modules)
+        business.enabled_modules.set(modules)
+        messages.success(request, f"Бизнес «{name}» успешно создан и настроен! 🚀")
+        return redirect('web:dashboard')
     
-    return render(request, 'web/create_business.html', {'form': form})
+    all_modules = Module.objects.all()
+    return render(request, 'web/create_business_wizard.html', {
+        'all_modules': all_modules,
+        'niches': Business.NICHES
+    })

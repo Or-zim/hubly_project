@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="hub-form-card">
+            <h2 class="hub-form-title">🛠 Конструктор бизнеса</h2>
+            <p class="hub-form-subtitle">Выберите нишу и необходимые модули для вашей CRM</p>
+
+            <form method="post" id="wizard-form">
+                {% csrf_token %}
+
+                <!-- Шаг 1: Название -->
+                <div class="mb-4">
+                    <label class="form-label">Название вашей компании</label>
+                    <input type="text" name="name" class="form-control" placeholder="Например: Coffee Hub" required>
+                </div>
+
+                <!-- Шаг 2: Ниша -->
+                <div class="mb-4">
+                    <label class="form-label">Выберите нишу</label>
+                    <select name="niche" id="niche-select" class="form-select" required>
+                        <option value="" disabled selected>-- Выберите нишу --</option>
+                        {% for code, name in niches %}
+                            <option value="{{ code }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Шаг 3: Модули -->
+                <div class="mb-4">
+                    <label class="form-label d-block mb-3">Функциональные модули</label>
+                    <div class="row g-3">
+                        {% for module in all_modules %}
+                        <div class="col-md-6">
+                            <div class="hub-list-item p-3 d-flex align-items-center gap-3">
+                                <input class="form-check-input module-checkbox" type="checkbox" 
+                                       name="modules" value="{{ module.slug }}" id="mod_{{ module.slug }}">
+                                <label class="form-check-label" for="mod_{{ module.slug }}">
+                                    <div class="fw-bold">{{ module.name }}</div>
+                                    <div class="hub-micro">{{ module.description }}</div>
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-5">
+                    <a href="{% url 'web:dashboard' %}" class="hub-btn hub-btn-ghost">Отмена</a>
+                    <button type="submit" class="hub-btn hub-btn-primary">Запустить мой бизнес 🚀</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// ЛОГИКА КОНСТРУКТОРА
+const nicheSelect = document.getElementById('niche-select');
+const checkboxes = document.querySelectorAll('.module-checkbox');
+
+// Конфигурация модулей для ниш
+const nicheConfig = {
+    'CLOTHES': {
+        required: ['catalog', 'inventory', 'sales'],
+        recommended: ['online_orders']
+    },
+    'CAFE': {
+        required: ['catalog', 'sales'],
+        recommended: ['consumables', 'inventory']
+    },
+    'BEAUTY': {
+        required: ['catalog'],
+        recommended: ['consumables']
+    }
+};
+
+nicheSelect.addEventListener('change', (e) => {
+    const selectedNiche = e.target.value;
+    const config = nicheConfig[selectedNiche];
+
+    checkboxes.forEach(cb => {
+        // Сбрасываем всё
+        cb.checked = false;
+        cb.disabled = false;
+        cb.parentElement.classList.remove('opacity-50');
+
+        if (config) {
+            // Если модуль обязательный
+            if (config.required.includes(cb.value)) {
+                cb.checked = true;
+                cb.disabled = false; // Оставляем включенным для отправки формы, но можно заблокировать визуально
+                // Чтобы значение улетело в POST, disabled лучше не ставить, 
+                // либо добавить hidden input. Сделаем просто checked.
+            }
+            // Если рекомендованный
+            if (config.recommended.includes(cb.value)) {
+                cb.checked = true;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

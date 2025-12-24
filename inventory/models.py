@@ -1,7 +1,7 @@
 from django.db import models
 from catalog.models import ProductVariant
 from businesses.models import Business
-
+from users.models import User
 
 
 class StockItem(models.Model):
@@ -25,5 +25,5 @@ class StockMovement(models.Model):
     movement_type = models.CharField(max_length=20, choices=MOVEMENT_TYPES)
     quantity = models.IntegerField()
     reason = models.CharField(max_length=255, blank=True, null=True)
-    performed_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+    performed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
