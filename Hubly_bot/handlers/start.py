@@ -48,7 +48,7 @@ async def cmd_start(message: Message, command: CommandObject, user: User):
 
 
 @router.message(Command("web"))
-@router.message(F.text == "🖥 Личный кабинет")
+@router.message(F.text == "🌐 Открыть веб‑панель")
 async def get_magic_link(message: types.Message, user: User):
     """
     Генерирует одноразовую ссылку для входа в веб-панель.

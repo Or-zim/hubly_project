@@ -7,7 +7,7 @@ from Hubly_bot.middlewares.auth import AuthMiddleware
 from Hubly_bot.handlers.start import router as start_router
 from Hubly_bot.handlers.business import router as business_router
 from Hubly_bot.handlers.owner import router as owner_router
-
+from Hubly_bot.handlers.others import router as others_router
 async def main():
     logging.basicConfig(level=logging.INFO)
     print("🚀 Инициализация Hubly Bot...")
@@ -20,7 +20,7 @@ async def main():
     dp.include_router(start_router)
     dp.include_router(business_router)
     dp.include_router(owner_router)
-
+    dp.include_router(others_router)
     
     await bot.delete_webhook(drop_pending_updates=True)
     print("✅ Бот Hubly запущен")

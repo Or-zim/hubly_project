@@ -6,7 +6,7 @@ def get_client_start_kb(business_id):
         [
             [InlineKeyboardButton(text="📅 Записаться / Услуги", callback_data=f"booking_{business_id}")],
             [InlineKeyboardButton(text="🛒 Товары", callback_data=f"shop_{business_id}"), InlineKeyboardButton(text="ℹ️ О нас", callback_data=f"about_{business_id}")],
-            [ InlineKeyboardButton(text="🏠 В главное меню бота", callback_data="back_to_main")]
+            [InlineKeyboardButton(text="🏠 В главное меню бота", callback_data="back_to_main")]
         ]
     )
     return kb

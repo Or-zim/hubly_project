@@ -5,7 +5,8 @@ def get_owner_profile_kb():
     kb = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="📂 Мои бизнесы"), KeyboardButton(text="🔔 Уведомления")],
-            [KeyboardButton(text="🌐 Открыть веб‑панель"), KeyboardButton(text="❓ Помощь / Обучение")]
+            [KeyboardButton(text="🌐 Открыть веб‑панель"), KeyboardButton(text="❓ Помощь / Обучение")],
+            [KeyboardButton(text="🏠 В главное меню бота")]
         ],
         resize_keyboard=True,
         input_field_placeholder="Выберите действие"

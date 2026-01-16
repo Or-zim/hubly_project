@@ -12,27 +12,12 @@ from sales.services import process_order_sale
 
 
 def magic_login(request, token):
-
     auth_token = get_object_or_404(AuthToken, id=token)
-
     if not auth_token.is_valid():
         return render(request, 'web/error.html', {'message': 'Ссылка устарела ⌛'})
-    
     login(request, auth_token.user)
-
     auth_token.delete()
-
     return redirect('web:dashboard')
-
-@login_required
-def dashboard(request):
-    businesses = Business.objects.filter(owner=request.user, is_active=True)
-
-    context = {
-        'businesses': businesses,
-    }
-    return render(request, 'web/dashboard.html', context)
-
 
 @login_required
 def complete_sale(request, order_id):
@@ -51,9 +36,7 @@ def create_business_wizard(request):
         name = request.POST.get('name')
         niche = request.POST.get('niche')
         selected_modules = request.POST.getlist('modules')
-        
         business = Business.objects.create(owner=request.user, name=name, niche=niche)
-
         modules = Module.objects.filter(slug__in=selected_modules)
         business.enabled_modules.set(modules)
         messages.success(request, f"Бизнес «{name}» успешно создан и настроен! 🚀")
@@ -64,3 +47,12 @@ def create_business_wizard(request):
         'all_modules': all_modules,
         'niches': Business.NICHES
     })
+
+def index_view(request):
+    if request.user.is_authenticated:
+        businesses = request.user.owned_businesses.all()
+        return render(request, 'web/dashboard.html', {
+            'businesses': businesses
+        })
+    else:
+        return render(request, 'web/landing.html')
