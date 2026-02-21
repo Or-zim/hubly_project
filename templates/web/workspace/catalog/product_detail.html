@@ -1,0 +1,92 @@
+{% extends 'workspace_base.html' %}
+
+{% block title %}{{ product.name }} | Hubly{% endblock %}
+
+{% block workspace_content %}
+<div class="fade-in">
+    <!-- ХЛЕБНЫЕ КРОШКИ -->
+    <nav class="mb-3">
+        <a href="{% url 'web:product_list_by_type' business.id product.product_type.id %}" class="text-primary text-decoration-none small">
+            <i class="bi bi-chevron-left"></i> Назад к списку {{ product.product_type.name }}
+        </a>
+    </nav>
+
+    <!-- ЗАГОЛОВОК ТОВАРА -->
+    <div class="hub-panel mb-4">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <span class="section-label">Модель товара</span>
+                <h1 class="hub-title mb-2">{{ product.name }}</h1>
+                <p class="mb-0 text-muted">Тип: <span class="text-white">{{ product.product_type.name }}</span></p>
+            </div>
+            <div class="text-end">
+                <span class="section-label">Базовая цена</span>
+                <h2 class="text-primary fw-bold">{{ product.base_price }} ₽</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- ТАБЛИЦА ВАРИАНТОВ (РАЗМЕРЫ/ЦВЕТА) -->
+    <div class="hub-panel">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fs-5 fw-bold mb-0">Доступные вариации и склад</h3>
+                <a href="{% url 'web:variant_add' business.id product.id %}" class="hub-btn hub-btn-primary hub-btn-sm">
+                    <i class="bi bi-plus-lg"></i> Добавить вариант
+                </a>
+</div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover border-secondary align-middle">
+                <thead>
+                    <tr>
+                        <th>Характеристики</th>
+                        <th>Артикул (SKU)</th>
+                        <th>Остаток на складе</th>
+                        <th class="text-end">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for variant in product.variants.all %}
+                    <tr>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for key, value in variant.attributes.items %}
+                                    <span class="badge bg-dark border border-secondary fw-normal">
+                                        <span class="text-muted">{{ key }}:</span> {{ value }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td><code class="text-info">{{ variant.sku }}</code></td>
+                        <td>
+                            <!-- Берем первый попавшийся StockItem для этого варианта -->
+                            {% with stock=variant.stock_items.first %}
+                                {% if stock %}
+                                    <span class="fw-bold {% if stock.quantity <= 5 %}text-danger{% else %}text-success{% endif %}">
+                                        {{ stock.quantity }} шт.
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted small">Не на складе (0 шт.)</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'web:variant_edit' business.id product.id variant.id %}" class="hub-btn hub-btn-ghost hub-btn-sm" title="Редактировать">
+                                <i class="bi bi-pencil"></i>
+                            <a href="{% url 'web:variant_delete' business.id product.id variant.id %}" 
+                                class="hub-btn hub-btn-ghost hub-btn-sm text-danger" 
+                                title="Удалить"
+                                onclick="return confirm('Удалить этот размер/цвет? Это также удалит все данные о его остатках на складе.')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>    
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'workspace_base.html' %}
+
+{% block workspace_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="hub-form-card">
+            <h2 class="hub-title">➕ Добавить вариант</h2>
+            <p class="hub-subtitle">Вы добавляете новый экземпляр для: <b>{{ product.name }}</b></p>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- ДИНАМИЧЕСКИЕ ПОЛЯ ИЗ ШАБЛОНА -->
+                <div class="p-4 rounded-4 mb-4 bg-dark border border-secondary border-opacity-25">
+                    <span class="section-label text-primary">Характеристики ({{ product.product_type.name }})</span>
+                    <div class="row g-3">
+                        {% for field in product.product_type.fields %}
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">{{ field.label }}</label>
+                            <!-- Имя инпута: field_имя (как мы и договорились во вьюхе) -->
+                            <input type="text" name="field_{{ field.name }}" class="form-control" placeholder="Введите {{ field.label|lower }}" required>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ЦЕНА И АРТИКУЛ -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="section-label">Цена за этот вариант (₽)</label>
+                        <input type="number" name="price" class="form-control" step="0.01" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="section-label">Артикул (необязательно)</label>
+                        <input type="text" name="sku" class="form-control" placeholder="Оставьте пустым для автогенерации">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between pt-4 border-top border-secondary border-opacity-25">
+                    <a href="{% url 'web:product_detail' business.id product.id %}" class="hub-btn hub-btn-ghost">Отмена</a>
+                    <button type="submit" class="hub-btn hub-btn-primary px-5">Сохранить экземпляр</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

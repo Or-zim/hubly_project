@@ -1,0 +1,92 @@
+{% extends 'workspace_base.html' %}
+
+{% block title %}Каталог | {{ business.name }}{% endblock %}
+
+{% block workspace_content %}
+<div class="fade-in">
+    <!-- ЗАГОЛОВОК СТРАНИЦЫ -->
+    <div class="mb-5 d-flex justify-content-between align-items-end">
+        <div>
+            <span class="section-label">Ваш ассортимент</span>
+            <h1 class="hub-title mb-1">📦 Каталог товаров</h1>
+            <p class="hub-subtitle mb-0">Выберите категорию для управления моделями</p>
+        </div>
+        
+        <!-- Кнопка перехода к управлению шаблонами (если нужно создать новый тип) -->
+        <a href="{% url 'web:product_type_list' business.id %}" class="hub-btn hub-btn-ghost hub-btn-sm">
+            <i class="bi bi-gear"></i> Управление типами
+        </a>
+    </div>
+
+    <!-- СЕТКА КАТЕГОРИЙ (ТИПОВ ТОВАРОВ) -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for type in types %}
+        <div class="col">
+            <!-- Ссылка ведет на второй уровень: список моделей этого типа -->
+            <a href="{% url 'web:product_list_by_type' business.id type.id %}" class="text-decoration-none">
+                <div class="hub-panel text-center h-100 catalog-type-card">
+                    <div class="type-icon-wrapper mb-4">
+                        <i class="bi bi-folder2-open"></i>
+                    </div>
+                    
+                    <h3 class="hub-title fs-5 mb-2">{{ type.name }}</h3>
+                    
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 rounded-pill">
+                            {{ type.products.count }} моделей
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5 rounded-4 border border-secondary border-dashed opacity-50">
+                <i class="bi bi-layers display-1 d-block mb-3"></i>
+                <p class="fs-5">Категории еще не созданы.</p>
+                <a href="{% url 'web:create_product_type' business.id %}" class="hub-btn hub-btn-primary mt-3">
+                    Создать первый тип товара
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* Стили специально для карточек категорий */
+    .catalog-type-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .catalog-type-card:hover {
+        transform: translateY(-10px);
+        background: rgba(37, 99, 235, 0.08);
+        border-color: var(--hub-primary);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .type-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 2rem;
+        color: var(--hub-primary);
+        transition: all 0.3s ease;
+    }
+
+    .catalog-type-card:hover .type-icon-wrapper {
+        background: var(--hub-primary);
+        color: #fff;
+        transform: rotate(-5deg) scale(1.1);
+        box-shadow: 0 0 20px var(--hub-primary-glow);
+    }
+</style>
+{% endblock %}

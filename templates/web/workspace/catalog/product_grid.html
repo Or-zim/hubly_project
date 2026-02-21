@@ -1,0 +1,90 @@
+{% extends 'workspace_base.html' %}
+
+{% block title %}{{ p_type.name }} | Hubly{% endblock %}
+
+{% block workspace_content %}
+<div class="fade-in">
+    <!-- НАВИГАЦИЯ И ЗАГОЛОВОК -->
+    <nav class="mb-3">
+        <a href="{% url 'web:catalog_index' business.id %}" class="text-primary text-decoration-none small">
+            <i class="bi bi-chevron-left"></i> Назад к категориям
+        </a>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <span class="section-label">Категория: {{ p_type.name }}</span>
+            <h1 class="hub-title mb-0">🛍 Список моделей</h1>
+        </div>
+        
+        <!-- Кнопка "Добавить" сразу передает scheme_id текущего типа -->
+        <a href="{% url 'web:product_add' business.id p_type.id %}" class="hub-btn hub-btn-primary">
+            <i class="bi bi-plus-lg"></i> Добавить модель
+        </a>
+    </div>
+
+    <!-- СЕТКА ТОВАРОВ -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for product in products %}
+        <div class="col">
+            <!-- Ссылка ведет на ТРЕТИЙ слой (Детали и Варианты) -->
+            <a href="#" class="text-decoration-none">
+                <div class="hub-panel p-3 h-100 product-card">
+                    <!-- Заглушка для фото -->
+                    <div class="product-preview mb-3">
+                        <i class="bi bi-box-seam text-muted"></i>
+                    </div>
+                    
+                    <h3 class="biz-name text-truncate mb-1">{{ product.name }}</h3>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-primary fw-bold">{{ product.base_price }} ₽</span>
+                        <span class="hub-micro text-muted">{{ product.variants.count }} вар.</span>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-top border-secondary border-opacity-10 d-flex gap-2">
+                        <!-- Кнопка входа внутрь (Слой 3) -->
+                        <a href="{% url 'web:product_detail' business.id product.id %}" class="hub-btn hub-btn-ghost hub-btn-sm flex-grow-1">
+                                Управлять
+                        </a>
+    
+                        <!-- КНОПКА УДАЛЕНИЯ -->
+                        <a href="{% url 'web:delete_product' business.id product.id %}" 
+                            class="hub-btn hub-btn-ghost hub-btn-sm text-danger" 
+                            onclick="return confirm('Вы уверены? Это удалит товар и все его размеры со склада!')">
+                        <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5 opacity-50">
+            <i class="bi bi-search display-1 d-block mb-3"></i>
+            <p>В этой категории еще нет созданных товаров.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+        border-color: rgba(255,255,255,0.05);
+    }
+    .product-card:hover {
+        border-color: var(--hub-primary);
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-5px);
+    }
+    .product-preview {
+        height: 160px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        border: 1px dashed rgba(255,255,255,0.1);
+    }
+</style>
+{% endblock %}

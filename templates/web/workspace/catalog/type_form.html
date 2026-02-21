@@ -1,0 +1,63 @@
+{% extends 'workspace_base.html' %}
+
+{% block workspace_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="hub-form-card">
+            <h2 class="hub-title">🛠 Создание нового типа</h2>
+            <p class="hub-subtitle text-muted">Определите, какие поля (размер, цвет, объем) будут у товаров этого типа.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Название типа -->
+                <div class="mb-4">
+                    <label class="section-label">Название типа</label>
+                    <input type="text" name="type_name" class="form-control form-control-lg" 
+                           placeholder="Напр: Верхняя одежда или Напитки" required>
+                </div>
+
+                <!-- Контейнер для полей -->
+                <div class="mb-4">
+                    <label class="section-label d-block mb-3">Характеристики (поля)</label>
+                    <div id="fields-container">
+                        <!-- Сюда JS будет добавлять новые строки -->
+                        <div class="input-group mb-2">
+                            <input type="text" name="attribute_labels" class="form-control" placeholder="Напр: Размер">
+                            <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="hub-btn hub-btn-ghost w-100 mt-2" id="add-field-btn">
+                        <i class="bi bi-plus-circle"></i> Добавить еще одну характеристику
+                    </button>
+                </div>
+
+                <!-- Кнопки -->
+                <div class="d-flex justify-content-between pt-4 border-top border-secondary border-opacity-25">
+                    <a href="{% url 'web:product_type_list' business.id %}" class="hub-btn hub-btn-ghost">Отмена</a>
+                    <button type="submit" class="hub-btn hub-btn-primary px-5">Сохранить шаблон</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Скрипт для динамического добавления инпутов
+    document.getElementById('add-field-btn').addEventListener('click', function() {
+        const container = document.getElementById('fields-container');
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <input type="text" name="attribute_labels" class="form-control" placeholder="Название поля">
+            <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    });
+</script>
+{% endblock %}

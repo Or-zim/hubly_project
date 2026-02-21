@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row g-0" style="margin-top: -40px; min-height: calc(100vh - 70px);">
+    
+    <!-- SIDEBAR (Левая панель) -->
+    <div class="col-md-3 col-lg-2 hub-sidebar">
+        <div class="py-4 px-3">
+            <span class="section-label mb-4 d-block">Модули бизнеса</span>
+            
+            <nav class="nav flex-column gap-2">
+                                <!-- Ссылка на главную бизнеса -->
+                <a href="{% url 'web:business_main' business.id %}" class="sidebar-link {% if request.resolver_match.url_name == 'business_main' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2"></i> Главная
+                </a>
+                {% if "catalog" in enabled_modules %}
+                <!-- Ссылка на список товаров -->
+                <a href="{% url 'web:catalog_index' business.id %}" class="sidebar-link {% if 'catalog' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-tag"></i> Каталог
+                </a>
+                {% endif %}
+                {% if "inventory" in enabled_modules %}
+                 <a href="#" class="sidebar-link {% if 'inventory' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-tag"></i> Склад
+                </a>
+                {% endif %}
+
+                {% if "sales" in enabled_modules %}
+                <a href="#" class="sidebar-link">
+                    <i class="bi bi-cash-stack"></i> Продажи
+                </a>
+                {% endif %}
+
+                {% if "consumables" in enabled_modules %}
+                <a href="#" class="sidebar-link">
+                    <i class="bi bi-droplet"></i> Расходники
+                </a>
+                {% endif %}
+                
+                <hr class="border-secondary opacity-25">
+                
+                <a href="#" class="sidebar-link text-muted">
+                    <i class="bi bi-gear"></i> Настройки
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT (Правая зона) -->
+    <div class="col-md-9 col-lg-10 p-4">
+        <div class="fade-in">
+            {% block workspace_content %}{% endblock %}
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .hub-sidebar {
+        background: rgba(15, 23, 42, 0.4);
+        border-right: 1px solid var(--hub-border);
+        backdrop-filter: blur(10px);
+    }
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: var(--hub-text-muted);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: 0.2s;
+        font-size: 0.9rem;
+    }
+    .sidebar-link i { font-size: 1.1rem; }
+    .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+    }
+    .sidebar-link.active {
+        background: var(--hub-primary);
+        color: #fff;
+        box-shadow: 0 4px 15px var(--hub-primary-glow);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'workspace_base.html' %}
+
+{% block workspace_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="hub-form-card">
+            <h2 class="hub-title">🛍 Новая модель: {{ scheme.name }}</h2>
+            <p class="hub-subtitle">Вы создаете общую карточку для группы товаров типа «{{ scheme.name }}».</p>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Название модели -->
+                <div class="mb-4">
+                    <label class="section-label">Название модели</label>
+                    <input type="text" name="name" class="form-control form-control-lg" 
+                           placeholder="Напр: Nike Air Max 2024" required>
+                    <small class="text-muted">Это название будет общим для всех размеров и цветов.</small>
+                </div>
+
+                <!-- Описание модели -->
+                <div class="mb-4">
+                    <label class="section-label">Описание (необязательно)</label>
+                    <textarea name="description" class="form-control" rows="4" 
+                              placeholder="Расскажите о преимуществах товара..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between pt-4 border-top border-secondary border-opacity-25">
+                    <a href="{% url 'web:product_list_by_type' business.id scheme.id %}" class="hub-btn hub-btn-ghost">Отмена</a>
+                    <button type="submit" class="hub-btn hub-btn-primary px-5">Создать карточку</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

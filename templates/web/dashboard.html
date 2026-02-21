@@ -33,8 +33,13 @@
                                 <span class="biz-date">Создан: {{ b.created_at|date:"d.m.Y" }}</span>
                             </div>
                             <div class="business-actions">
-                                <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm">
+                                <a href="{% url 'web:business_main' b.id %}" class="hub-btn hub-btn-ghost hub-btn-sm">
                                     Открыть панель <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                                <a href="{% url 'web:delete_business' b.id %}" class="hub-btn hub-btn-ghost hub-btn-sm text-danger"
+                                    title="Удалить"
+                                    onclick="return confirm('Вы уверены, что хотите полностью УДАЛИТЬ бизнес и все его данные?')">
+                                    <i class="bi bi-trash"></i>
                                 </a>
                             </div>
                         </div>

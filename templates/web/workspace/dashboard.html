@@ -1,0 +1,49 @@
+{% extends 'workspace_base.html' %}
+
+{% block title %}{{ business.name }} | Hubly{% endblock %}
+
+{% block workspace_content %}
+<div class="mb-4">
+    <div class="d-flex align-items-center gap-3 mb-2">
+        <h1 class="hub-title mb-0">{{ business.name }}</h1>
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-3">
+            {{ business.get_niche_display }}
+        </span>
+    </div>
+    <p class="hub-subtitle">Добро пожаловать в рабочее пространство вашего бизнеса.</p>
+</div>
+
+<!-- Быстрые карточки (Обзор модулей) -->
+<div class="row g-4">
+    {% if "inventory" in enabled_modules %}
+    <div class="col-md-4">
+        <div class="hub-panel p-4 text-center">
+            <i class="bi bi-box-seam display-6 text-primary mb-3"></i>
+            <h5 class="fw-bold">Складской учет</h5>
+            <p class="hub-micro mb-4">Управляйте остатками и поставками товаров.</p>
+            <a href="#" class="hub-btn hub-btn-primary hub-btn-sm w-100">Открыть склад</a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if "sales" in enabled_modules %}
+    <div class="col-md-4">
+        <div class="hub-panel p-4 text-center">
+            <i class="bi bi-cash-stack display-6 text-success mb-3"></i>
+            <h5 class="fw-bold">Продажи</h5>
+            <p class="hub-micro mb-4">Оформляйте чеки и смотрите историю заказов.</p>
+            <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm w-100">Перейти к кассе</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="col-md-4">
+        <div class="hub-panel p-4 text-center border-dashed">
+            <i class="bi bi-plus-circle display-6 text-muted mb-3"></i>
+            <h5 class="fw-bold text-muted">Добавить модуль</h5>
+            <p class="hub-micro mb-4">Расширьте возможности вашей системы.</p>
+            <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm w-100">Конструктор</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

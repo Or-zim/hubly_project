@@ -1,0 +1,89 @@
+{% extends 'workspace_base.html' %}
+{% load custom_filters %}
+
+{% block workspace_content %}
+<div class="hub-panel">
+    <!-- ЗАГОЛОВОК -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="hub-title mb-0">📉 Складской учет</h2>
+            <p class="hub-subtitle mb-0">Контроль остатков и управление запасами</p>
+        </div>
+        <div class="d-flex gap-2">
+            <!-- ССЫЛКА НА БУДУЩУЮ ВЬЮХУ ПРИХОДА ТОНВАРА -->
+            <a href="{% url 'web:inventory_add' business.id %}" class="hub-btn hub-btn-primary">
+                <i class="bi bi-plus-circle"></i> Оформить поставку
+            </a>
+        </div>
+    </div>
+
+    <!-- ТАБЛИЦА ОСТАТКОВ -->
+    <div class="table-responsive">
+        <table class="table table-dark table-hover border-secondary">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <!-- Динамические колонки характеристик -->
+                    {% for field in custom_fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                    <th>Остаток</th>
+                    <th>Статус</th>
+                    <th class="text-end">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                <tr class="align-middle">
+                    <td>
+                        <span class="fw-bold">{{ item.variant.product.name }}</span>
+                        <div class="hub-micro text-muted">SKU: {{ item.variant.sku|default:"—" }}</div>
+                    </td>
+
+                    <!-- Характеристики из JSON -->
+                    {% for field in custom_fields %}
+                        <td>{{ item.variant.attributes|dict_get:field.name|default:"—" }}</td>
+                    {% endfor %}
+
+                    <td>
+                        <span class="fs-5 fw-bold">{{ item.quantity }}</span> шт.
+                    </td>
+
+                    <td>
+                        <!-- Логика индикатора остатка -->
+                        {% if item.quantity <= item.min_threshold %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3">Мало</span>
+                        {% else %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3">В норме</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <!-- Ссылка на редактирование остатка или историю -->
+                            <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm" title="История движения">
+                                <i class="bi bi-clock-history"></i>
+                            </a>
+                            <button class="hub-btn hub-btn-ghost hub-btn-sm" title="Списать/Добавить">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="100" class="text-center py-5">
+                        <i class="bi bi-box-seam display-1 text-muted opacity-25 mb-3 d-block"></i>
+                        <p class="text-muted">На складе пока пусто.<br>Сначала добавьте товары в каталог, а затем оформите приход.</p>
+                        <!-- ССЫЛКА НА КАТАЛОГ -->
+                        <a href="{% url 'web:catalog_list' business.id %}" class="hub-btn hub-btn-primary hub-btn-sm mt-2">
+                            Перейти в каталог
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
