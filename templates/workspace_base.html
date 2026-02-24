@@ -20,9 +20,10 @@
                 </a>
                 {% endif %}
                 {% if "inventory" in enabled_modules %}
-                 <a href="#" class="sidebar-link {% if 'inventory' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="bi bi-tag"></i> Склад
-                </a>
+                    <a href="{% url 'web:inventory_list' business.id %}" 
+                        class="sidebar-link {% if 'inventory' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="bi bi-box-seam"></i> Склад
+                    </a>
                 {% endif %}
 
                 {% if "sales" in enabled_modules %}
