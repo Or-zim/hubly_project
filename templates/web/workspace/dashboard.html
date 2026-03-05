@@ -1,49 +1,121 @@
 {% extends 'workspace_base.html' %}
 
-{% block title %}{{ business.name }} | Hubly{% endblock %}
+{% block title %}Обзор | {{ business.name }}{% endblock %}
 
 {% block workspace_content %}
-<div class="mb-4">
-    <div class="d-flex align-items-center gap-3 mb-2">
-        <h1 class="hub-title mb-0">{{ business.name }}</h1>
-        <span class="badge bg-primary-subtle text-primary rounded-pill px-3">
-            {{ business.get_niche_display }}
-        </span>
-    </div>
-    <p class="hub-subtitle">Добро пожаловать в рабочее пространство вашего бизнеса.</p>
-</div>
-
-<!-- Быстрые карточки (Обзор модулей) -->
-<div class="row g-4">
-    {% if "inventory" in enabled_modules %}
-    <div class="col-md-4">
-        <div class="hub-panel p-4 text-center">
-            <i class="bi bi-box-seam display-6 text-primary mb-3"></i>
-            <h5 class="fw-bold">Складской учет</h5>
-            <p class="hub-micro mb-4">Управляйте остатками и поставками товаров.</p>
-            <a href="#" class="hub-btn hub-btn-primary hub-btn-sm w-100">Открыть склад</a>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if "sales" in enabled_modules %}
-    <div class="col-md-4">
-        <div class="hub-panel p-4 text-center">
-            <i class="bi bi-cash-stack display-6 text-success mb-3"></i>
-            <h5 class="fw-bold">Продажи</h5>
-            <p class="hub-micro mb-4">Оформляйте чеки и смотрите историю заказов.</p>
-            <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm w-100">Перейти к кассе</a>
-        </div>
-    </div>
-    {% endif %}
+<div class="fade-in">
     
-    <div class="col-md-4">
-        <div class="hub-panel p-4 text-center border-dashed">
-            <i class="bi bi-plus-circle display-6 text-muted mb-3"></i>
-            <h5 class="fw-bold text-muted">Добавить модуль</h5>
-            <p class="hub-micro mb-4">Расширьте возможности вашей системы.</p>
-            <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm w-100">Конструктор</a>
+    <!-- Заголовок страницы -->
+    <div class="mb-5 border-bottom border-secondary border-opacity-25 pb-4">
+        <span class="section-label">Панель управления</span>
+        <h1 class="hub-title mb-2">{{ business.name }}</h1>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-dark border border-secondary text-muted px-3 py-2 rounded-pill">
+                Ниша: {{ business.get_niche_display }}
+            </span>
+            <span class="badge bg-dark border border-secondary text-muted px-3 py-2 rounded-pill">
+                Создан: {{ business.created_at|date:"d.m.Y" }}
+            </span>
         </div>
+    </div>
+
+    <div class="row g-4 stagger-children">
+        
+        <!-- ЛЕВАЯ КОЛОНКА: Инфо и модули -->
+        <div class="col-lg-8">
+            
+            <!-- Блок "О рабочем пространстве" -->
+            <div class="hub-panel p-5 mb-4" style="background: linear-gradient(145deg, #0d0d0d, #050505); border: 1px solid rgba(255,255,255,0.05);">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="icon-box mb-0" style="width: 45px; height: 45px; font-size: 1.2rem; background: var(--hub-white); color: #000;">
+                        <i class="bi bi-rocket-takeoff"></i>
+                    </div>
+                    <h3 class="fs-4 fw-bold mb-0">Рабочее пространство</h3>
+                </div>
+                
+                <p class="text-muted mb-4" style="line-height: 1.8; font-size: 1.05rem;">
+                    Вы находитесь в изолированном пространстве управления компанией <strong>«{{ business.name }}»</strong>. 
+                    Все изменения, товары и продажи, созданные здесь, привязаны исключительно к этому проекту и не пересекаются с другими вашими бизнесами.
+                </p>
+                
+                <h5 class="fs-6 fw-bold mb-3 text-white">Активные модули вашей системы:</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for module in business.enabled_modules.all %}
+                        <span class="badge" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; font-weight: normal; font-size: 0.85rem;">
+                            <i class="bi bi-check-circle text-primary me-2"></i> {{ module.name }}
+                        </span>
+                    {% empty %}
+                        <span class="text-muted small">Модули не подключены</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Блок-заглушка на будущее (например, сводка за сегодня) -->
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="hub-panel p-4 h-100 text-center" style="background: #0a0a0a;">
+                        <i class="bi bi-bar-chart display-5 text-muted opacity-25 mb-3 d-block"></i>
+                        <p class="text-muted small mb-0">Аналитика появится после первых продаж</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="hub-panel p-4 h-100 text-center" style="background: #0a0a0a;">
+                        <i class="bi bi-people display-5 text-muted opacity-25 mb-3 d-block"></i>
+                        <p class="text-muted small mb-0">Модуль управления командой (в разработке)</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ПРАВАЯ КОЛОНКА: Профиль владельца и опасная зона -->
+        <div class="col-lg-4">
+            
+            <!-- Карточка Владельца -->
+            <div class="hub-panel p-4 mb-4" style="background: #0d0d0d;">
+                <span class="section-label mb-4">Владелец проекта</span>
+                
+                <div class="text-center mb-4">
+                    <div class="hub-user-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; background: rgba(255,255,255,0.1); color: #fff;">
+                        {{ user.first_name|slice:":1"|upper }}
+                    </div>
+                    <h4 class="fs-5 fw-bold mb-1">{{ user.first_name }}</h4>
+                    <p class="hub-micro text-muted">@{{ user.username }}</p>
+                </div>
+
+                <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03);">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Статус</span>
+                        <span class="text-success small fw-bold"><i class="bi bi-circle-fill me-1" style="font-size: 0.6rem;"></i> Активен</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Роль</span>
+                        <span class="text-white small">Администратор</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">ID в системе</span>
+                        <span class="text-white small">#{{ user.id }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Опасная зона (Удаление) -->
+            <div class="hub-panel p-4" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2);">
+                <span class="section-label text-danger mb-3" style="color: #ef4444 !important;">Danger Zone</span>
+                <h4 class="fs-6 fw-bold text-white mb-2">Удаление проекта</h4>
+                <p class="hub-micro text-muted mb-4" style="line-height: 1.5;">
+                    Удаление бизнеса приведет к необратимой потере всех товаров, остатков на складе и истории продаж.
+                </p>
+                <a href="{% url 'web:delete_business' business.id %}" 
+                   class="hub-btn w-100 justify-content-center" 
+                   style="background: rgba(239, 68, 68, 0.1); color: #ef4444 !important; border: 1px solid rgba(239, 68, 68, 0.3);"
+                   onclick="return confirm('ВНИМАНИЕ! Вы уверены, что хотите полностью УДАЛИТЬ бизнес и все его данные? Это действие нельзя отменить.')">
+                    <i class="bi bi-trash"></i> Уничтожить бизнес
+                </a>
+            </div>
+
+        </div>
+
     </div>
 </div>
 {% endblock %}

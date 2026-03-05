@@ -4,87 +4,112 @@
 
 {% block workspace_content %}
 <div class="fade-in">
-    <!-- НАВИГАЦИЯ И ЗАГОЛОВОК -->
-    <nav class="mb-3">
-        <a href="{% url 'web:catalog_index' business.id %}" class="text-primary text-decoration-none small">
-            <i class="bi bi-chevron-left"></i> Назад к категориям
+    
+    <!-- ХЛЕБНЫЕ КРОШКИ И ЗАГОЛОВОК -->
+    <div class="mb-5 border-bottom border-secondary border-opacity-25 pb-4">
+        <!-- Навигация "назад" -->
+        <a href="{% url 'web:catalog_index' business.id %}" class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-3 hover-text-white transition-all">
+            <i class="bi bi-arrow-left"></i> Назад к категориям
         </a>
-    </nav>
-
-    <div class="d-flex justify-content-between align-items-end mb-5">
-        <div>
-            <span class="section-label">Категория: {{ p_type.name }}</span>
-            <h1 class="hub-title mb-0">🛍 Список моделей</h1>
-        </div>
         
-        <!-- Кнопка "Добавить" сразу передает scheme_id текущего типа -->
-        <a href="{% url 'web:product_add' business.id p_type.id %}" class="hub-btn hub-btn-primary">
-            <i class="bi bi-plus-lg"></i> Добавить модель
-        </a>
+        <div class="d-flex justify-content-between align-items-end">
+            <div>
+                <span class="section-label">Тип товара: {{ p_type.name }}</span>
+                <h1 class="hub-title mb-0">Список моделей</h1>
+            </div>
+            
+            <!-- Кнопка "Добавить" сразу передает scheme_id текущего типа -->
+            <a href="{% url 'web:product_add' business.id p_type.id %}" class="hub-btn hub-btn-primary">
+                <i class="bi bi-plus-lg"></i> Добавить модель
+            </a>
+        </div>
     </div>
 
-    <!-- СЕТКА ТОВАРОВ -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    <!-- СЕТКА КАРТОЧЕК ТОВАРОВ -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4 stagger-children">
         {% for product in products %}
         <div class="col">
-            <!-- Ссылка ведет на ТРЕТИЙ слой (Детали и Варианты) -->
-            <a href="#" class="text-decoration-none">
-                <div class="hub-panel p-3 h-100 product-card">
+            <!-- Сама карточка товара -->
+            <div class="product-item-card h-100 d-flex flex-column" style="background: #0d0d0d; border: 1px solid rgba(255,255,255,0.08); border-radius: var(--hub-radius-lg); overflow: hidden; transition: all 0.3s ease;">
+                
+                <!-- Верхняя часть (Кликабельная: ведет в детали товара) -->
+                <a href="{% url 'web:product_detail' business.id product.id %}" class="text-decoration-none p-3 pb-0 flex-grow-1 group-hover">
+                    
                     <!-- Заглушка для фото -->
-                    <div class="product-preview mb-3">
-                        <i class="bi bi-box-seam text-muted"></i>
+                    <div class="product-image-box rounded-3 mb-3 d-flex align-items-center justify-content-center" style="height: 160px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease;">
+                        <i class="bi bi-box-seam fs-1 text-muted opacity-50"></i>
                     </div>
                     
-                    <h3 class="biz-name text-truncate mb-1">{{ product.name }}</h3>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-primary fw-bold">{{ product.base_price }} ₽</span>
-                        <span class="hub-micro text-muted">{{ product.variants.count }} вар.</span>
-                    </div>
+                    <!-- Текстовая информация -->
+                    <h3 class="fs-6 fw-bold text-white mb-1 text-truncate" title="{{ product.name }}">{{ product.name }}</h3>
                     
-                    <div class="mt-3 pt-3 border-top border-secondary border-opacity-10 d-flex gap-2">
-                        <!-- Кнопка входа внутрь (Слой 3) -->
-                        <a href="{% url 'web:product_detail' business.id product.id %}" class="hub-btn hub-btn-ghost hub-btn-sm flex-grow-1">
-                                Управлять
+                    <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
+                        <span class="badge" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--hub-text-muted); font-weight: normal;">
+                            {{ product.variants.count }} вар.
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Нижняя панель действий (Управление и Удаление) -->
+                <div class="p-3 border-top border-secondary border-opacity-25 mt-auto" style="background: #050505;">
+                    <div class="d-flex gap-2">
+                        <!-- Кнопка "Настроить варианты" (занимает большую часть) -->
+                        <a href="{% url 'web:product_detail' business.id product.id %}" class="hub-btn hub-btn-ghost hub-btn-sm flex-grow-1 justify-content-center" style="border-color: rgba(255,255,255,0.1);">
+                            Настроить
                         </a>
-    
-                        <!-- КНОПКА УДАЛЕНИЯ -->
+                        
+                        <!-- Опасная кнопка удаления (справа) -->
                         <a href="{% url 'web:delete_product' business.id product.id %}" 
-                            class="hub-btn hub-btn-ghost hub-btn-sm text-danger" 
-                            onclick="return confirm('Вы уверены? Это удалит товар и все его размеры со склада!')">
-                        <i class="bi bi-trash"></i>
+                           class="hub-btn hub-btn-ghost hub-btn-sm text-danger px-3" 
+                           style="border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05);"
+                           title="Удалить модель"
+                           onclick="return confirm('Вы уверены? Это удалит товар и все его размеры со склада!')">
+                            <i class="bi bi-trash"></i>
                         </a>
                     </div>
                 </div>
-            </a>
+
+            </div>
         </div>
         {% empty %}
-        <div class="col-12 text-center py-5 opacity-50">
-            <i class="bi bi-search display-1 d-block mb-3"></i>
-            <p>В этой категории еще нет созданных товаров.</p>
+        <!-- Пустое состояние -->
+        <div class="col-12">
+            <div class="text-center py-5 border-dashed rounded-4" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1);">
+                <i class="bi bi-search display-1 d-block mb-3 opacity-25 text-white"></i>
+                <h4 class="text-white fs-5 mb-2">Товары не найдены</h4>
+                <p class="text-muted mx-auto mb-4" style="max-width: 400px;">
+                    В этой категории пока нет ни одной модели товара. Нажмите кнопку выше, чтобы добавить первую.
+                </p>
+            </div>
         </div>
         {% endfor %}
     </div>
+
 </div>
 
 <style>
-    .product-card {
-        transition: all 0.3s ease;
-        border-color: rgba(255,255,255,0.05);
-    }
-    .product-card:hover {
-        border-color: var(--hub-primary);
-        background: rgba(255, 255, 255, 0.05);
+    /* Анимации для карточек товаров */
+    .product-item-card:hover {
+        border-color: rgba(255,255,255,0.2) !important;
         transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
     }
-    .product-preview {
-        height: 160px;
-        background: rgba(0,0,0,0.2);
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        border: 1px dashed rgba(255,255,255,0.1);
+
+    /* Эффект для картинки-заглушки при наведении на карточку */
+    .group-hover:hover .product-image-box {
+        background: rgba(255,255,255,0.05) !important;
+        border-color: rgba(255,255,255,0.15) !important;
+    }
+
+    .group-hover:hover .product-image-box i {
+        opacity: 1 !important;
+        color: #fff !important;
+        transform: scale(1.1);
+        transition: all 0.3s ease;
+    }
+
+    .hover-text-white:hover {
+        color: #fff !important;
     }
 </style>
 {% endblock %}

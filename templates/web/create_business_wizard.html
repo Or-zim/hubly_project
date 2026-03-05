@@ -1,26 +1,38 @@
 {% extends 'base.html' %}
 
+{% block title %}Новый бизнес | Hubly{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-8">
-        <div class="hub-form-card">
-            <h2 class="hub-form-title">🛠 Конструктор бизнеса</h2>
-            <p class="hub-form-subtitle">Выберите нишу и необходимые модули для вашей CRM</p>
+<div class="row justify-content-center mt-5 fade-in pb-5">
+    <!-- Сделали карточку чуть шире (col-lg-8) для красоты -->
+    <div class="col-md-10 col-lg-8">
+        
+        <!-- МОНОЛИТНАЯ КАРТОЧКА: добавили p-4 p-md-5 для больших отступов от краев -->
+        <div class="hub-form-card p-4 p-md-5" style="background: #0d0d0d; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+            
+            <div class="mb-5 text-center">
+                <div class="icon-box mx-auto mb-4" style="width: 54px; height: 54px; background: rgba(255,255,255,0.05); color: #fff;">
+                    <i class="bi bi-building-add fs-4"></i>
+                </div>
+                <h2 class="hub-title mb-2">Создание пространства</h2>
+                <p class="hub-subtitle mb-0">Выберите нишу и настройте модули для вашей новой CRM.</p>
+            </div>
 
             <form method="post" id="wizard-form">
                 {% csrf_token %}
 
                 <!-- Шаг 1: Название -->
-                <div class="mb-4">
-                    <label class="form-label">Название вашей компании</label>
-                    <input type="text" name="name" class="form-control" placeholder="Например: Coffee Hub" required>
+                <!-- mb-5 дает большой отступ вниз до следующего поля -->
+                <div class="mb-5">
+                    <label class="section-label mb-3">Название вашей компании</label>
+                    <input type="text" name="name" class="form-control" placeholder="Например: Coffee Hub" required style="background: #050505;">
                 </div>
 
                 <!-- Шаг 2: Ниша -->
-                <div class="mb-4">
-                    <label class="form-label">Выберите нишу</label>
-                    <select name="niche" id="niche-select" class="form-select" required>
-                        <option value="" disabled selected>-- Выберите нишу --</option>
+                <div class="mb-5">
+                    <label class="section-label mb-3">Отрасль / Ниша</label>
+                    <select name="niche" id="niche-select" class="form-select" required style="background: #050505;">
+                        <option value="" disabled selected>-- Выберите из списка --</option>
                         {% for code, name in niches %}
                             <option value="{{ code }}">{{ name }}</option>
                         {% endfor %}
@@ -28,78 +40,46 @@
                 </div>
 
                 <!-- Шаг 3: Модули -->
-                <div class="mb-4">
-                    <label class="form-label d-block mb-3">Функциональные модули</label>
-                    <div class="row g-3">
+                <!-- mt-5 отталкивает блок модулей еще ниже -->
+                <div class="mb-5 mt-5 p-4 p-md-5 rounded-4" style="background: #141414; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <i class="bi bi-cpu text-muted fs-5"></i>
+                        <span class="section-label mb-0">Архитектура модулей</span>
+                    </div>
+                    
+                    <div class="row g-4">
                         {% for module in all_modules %}
                         <div class="col-md-6">
-                            <div class="hub-list-item p-3 d-flex align-items-center gap-3">
-                                <input class="form-check-input module-checkbox" type="checkbox" 
-                                       name="modules" value="{{ module.slug }}" id="mod_{{ module.slug }}">
-                                <label class="form-check-label" for="mod_{{ module.slug }}">
-                                    <div class="fw-bold">{{ module.name }}</div>
-                                    <div class="hub-micro">{{ module.description }}</div>
-                                </label>
+                            <!-- Карточка модуля -->
+                            <div class="module-item p-4 rounded-3 d-flex align-items-start gap-3 h-100" style="background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05);">
+                                <div class="form-check mt-1">
+                                    <input class="form-check-input module-checkbox custom-checkbox" type="checkbox" 
+                                           name="modules" value="{{ module.slug }}" id="mod_{{ module.slug }}">
+                                </div>
+                                <div>
+                                    <label class="form-check-label fw-bold text-white mb-2 fs-6" for="mod_{{ module.slug }}" style="cursor: pointer;">
+                                        {{ module.name }}
+                                    </label>
+                                    <p class="hub-micro text-muted mb-0 lh-base">{{ module.description }}</p>
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between mt-5">
-                    <a href="{% url 'web:index' %}" class="hub-btn hub-btn-ghost">Отмена</a>
-                    <button type="submit" class="hub-btn hub-btn-primary">Запустить мой бизнес 🚀</button>
+                <!-- Кнопки: mt-5 pt-4 дает огромный отступ сверху от линии -->
+                <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-4 mt-5">
+                    <a href="{% url 'web:index' %}" class="hub-btn hub-btn-ghost px-4 py-3">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                    <button type="submit" class="hub-btn hub-btn-primary px-5 py-3">
+                        Запустить проект <i class="bi bi-rocket-takeoff ms-2"></i>
+                    </button>
                 </div>
             </form>
         </div>
+        
     </div>
 </div>
-
-<script>
-// ЛОГИКА КОНСТРУКТОРА
-const nicheSelect = document.getElementById('niche-select');
-const checkboxes = document.querySelectorAll('.module-checkbox');
-
-// Конфигурация модулей для ниш
-const nicheConfig = {
-    'CLOTHES': {
-        required: ['catalog', 'inventory', 'sales'],
-        recommended: ['online_orders']
-    },
-    'CAFE': {
-        required: ['catalog', 'sales'],
-        recommended: ['consumables', 'inventory']
-    },
-    'BEAUTY': {
-        required: ['catalog'],
-        recommended: ['consumables']
-    }
-};
-
-nicheSelect.addEventListener('change', (e) => {
-    const selectedNiche = e.target.value;
-    const config = nicheConfig[selectedNiche];
-
-    checkboxes.forEach(cb => {
-        // Сбрасываем всё
-        cb.checked = false;
-        cb.disabled = false;
-        cb.parentElement.classList.remove('opacity-50');
-
-        if (config) {
-            // Если модуль обязательный
-            if (config.required.includes(cb.value)) {
-                cb.checked = true;
-                cb.disabled = false; // Оставляем включенным для отправки формы, но можно заблокировать визуально
-                // Чтобы значение улетело в POST, disabled лучше не ставить, 
-                // либо добавить hidden input. Сделаем просто checked.
-            }
-            // Если рекомендованный
-            if (config.recommended.includes(cb.value)) {
-                cb.checked = true;
-            }
-        }
-    });
-});
-</script>
 {% endblock %}

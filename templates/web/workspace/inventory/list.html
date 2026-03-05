@@ -3,55 +3,53 @@
 {% block title %}Склад | {{ business.name }}{% endblock %}
 
 {% block workspace_content %}
-<div class="fade-in">
-    <!-- ЗАГОЛОВОК -->
-    <div class="d-flex justify-content-between align-items-end mb-5">
+<div class="fade-in pb-5">
+    
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom border-secondary border-opacity-25 pb-4">
         <div>
             <span class="section-label">Модуль инвентаризации</span>
             <h1 class="hub-title mb-1">📉 Остатки на складе</h1>
+            <p class="hub-subtitle mb-0">Управление наличием товаров и мониторинг запасов.</p>
         </div>
-        <a href="{% url 'web:inventory_add' business.id %}" class="hub-btn hub-btn-primary">
-            <i class="bi bi-plus-lg"></i> Оформить поставку
-        </a>
+        <div class="d-flex gap-3">
+            <!-- КНОПКА ПЕРЕХОДА В ИСТОРИЮ -->
+            <a href="{% url 'web:inventory_history' business.id %}" class="hub-btn hub-btn-ghost">
+                <i class="bi bi-clock-history"></i> Журнал движений
+            </a>
+            <a href="{% url 'web:inventory_add' business.id %}" class="hub-btn hub-btn-primary">
+                <i class="bi bi-plus-lg"></i> Оформить поставку
+            </a>
+        </div>
     </div>
 
     <!-- ПАНЕЛЬ ФИЛЬТРОВ -->
-    <div class="hub-panel p-4 mb-4">
-        <form method="get" class="row g-3">
-            <!-- Поиск -->
+    <div class="hub-panel p-4 mb-5" style="background: #0d0d0d; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <form method="get" class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label class="form-label small text-muted">Поиск товара</label>
-                <input type="text" name="search" class="form-control" placeholder="Название или артикул..." 
-                       value="{{ request.GET.search|default:'' }}">
+                <label class="section-label mb-2">Поиск товара</label>
+                <input type="text" name="search" class="form-control" placeholder="Название модели..." 
+                       value="{{ request.GET.search|default:'' }}" style="background: #050505;">
             </div>
-
-            <!-- Тип товара -->
             <div class="col-md-3">
-                <label class="form-label small text-muted">Категория</label>
-                <select name="type" class="form-select">
+                <label class="section-label mb-2">Категория</label>
+                <select name="type" class="form-select" style="background: #050505;">
                     <option value="">Все типы</option>
                     {% for t in product_types %}
-                        <option value="{{ t.id }}" {% if request.GET.type == t.id|stringformat:"s" %}selected{% endif %}>
-                            {{ t.name }}
-                        </option>
+                        <option value="{{ t.id }}" {% if request.GET.type == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
                     {% endfor %}
                 </select>
             </div>
-
-            <!-- Статус остатка -->
             <div class="col-md-3">
-                <label class="form-label small text-muted">Наличие</label>
-                <select name="stock" class="form-select">
+                <label class="section-label mb-2">Наличие</label>
+                <select name="stock" class="form-select" style="background: #050505;">
                     <option value="all">Любое количество</option>
                     <option value="low" {% if request.GET.stock == 'low' %}selected{% endif %}>Заканчивается</option>
                     <option value="out" {% if request.GET.stock == 'out' %}selected{% endif %}>Нет в наличии</option>
                 </select>
             </div>
-
-            <!-- Кнопки -->
-            <div class="col-md-2 d-flex align-items-end gap-2">
-                <button type="submit" class="hub-btn hub-btn-primary w-100">Найти</button>
-                <a href="{% url 'web:inventory_list' business.id %}" class="hub-btn hub-btn-ghost" title="Сбросить">
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="hub-btn hub-btn-ghost w-100 justify-content-center" style="border-color: rgba(255,255,255,0.1);">Найти</button>
+                <a href="{% url 'web:inventory_list' business.id %}" class="hub-btn hub-btn-ghost" title="Сбросить" style="border-color: rgba(255,255,255,0.1); padding: 10px 15px;">
                     <i class="bi bi-x-lg"></i>
                 </a>
             </div>
@@ -59,63 +57,74 @@
     </div>
 
     <!-- ТАБЛИЦА ОСТАТКОВ -->
-    <div class="hub-panel p-0 overflow-hidden">
+    <div class="hub-panel p-0 overflow-hidden" style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.08);">
         <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0 align-middle">
-                <thead class="bg-white bg-opacity-5">
+            <table class="table table-dark table-hover mb-0 align-middle" style="--bs-table-bg: #0a0a0a;">
+                <thead style="background: #050505;">
                     <tr>
-                        <th class="ps-4 py-3">Товар / Артикул</th>
-                        <th>Характеристики</th>
-                        <th>Количество</th>
-                        <th>Статус</th>
-                        <th class="text-end pe-4">Действия</th>
+                        <th class="ps-4 py-3 text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ТОВАР / АРТИКУЛ</th>
+                        <th class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ХАРАКТЕРИСТИКИ</th>
+                        <th class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ЦЕНА</th>
+                        <th class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ОСТАТОК</th>
+                        <th class="text-end pe-4 text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ДЕЙСТВИЯ</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in inventory %}
-                    <tr>
-                        <td class="ps-4">
-                            <span class="fw-bold d-block">{{ item.variant.product.name }}</span>
-                            <code class="hub-micro text-primary">{{ item.variant.sku }}</code>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td class="ps-4 py-3">
+                            <span class="fw-bold d-block text-white fs-6 mb-1">{{ item.variant.product.name }}</span>
+                            <span class="badge bg-dark border border-secondary text-muted fw-normal" style="font-family: monospace;">SKU: {{ item.variant.sku|default:"—" }}</span>
                         </td>
                         <td>
-                            <div class="d-flex flex-wrap gap-1">
+                            <div class="d-flex flex-wrap gap-2">
                                 {% for key, value in item.variant.attributes.items %}
-                                    <span class="badge bg-dark border border-secondary fw-normal" style="font-size: 0.7rem;">
-                                        {{ key }}: {{ value }}
+                                    <span class="badge" style="background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 500; padding: 6px 12px; font-size: 0.85rem;">
+                                        <span class="text-muted fw-normal me-1">{{ key }}:</span> {{ value }}
                                     </span>
+                                {% empty %}
+                                    <span class="text-muted small">—</span>
                                 {% endfor %}
                             </div>
                         </td>
+                        <td><span class="fw-bold text-white">{{ item.variant.price }} ₽</span></td>
                         <td>
-                            <span class="fs-5 fw-bold">{{ item.quantity }}</span> 
-                            <span class="text-muted small">шт.</span>
-                        </td>
-                        <td>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                {% if item.quantity <= 0 %}
+                                    <div class="hub-status-dot bg-danger" style="width: 8px; height: 8px;"></div>
+                                    <span class="fw-bold text-danger fs-5">{{ item.quantity }}</span>
+                                {% elif item.quantity <= item.min_threshold %}
+                                    <div class="hub-status-dot bg-warning" style="width: 8px; height: 8px;"></div>
+                                    <span class="fw-bold text-warning fs-5">{{ item.quantity }}</span>
+                                {% else %}
+                                    <div class="hub-status-dot bg-success" style="width: 8px; height: 8px;"></div>
+                                    <span class="fw-bold text-white fs-5">{{ item.quantity }}</span>
+                                {% endif %}
+                                <span class="text-muted small">шт.</span>
+                            </div>
                             {% if item.quantity <= 0 %}
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 rounded-pill">Пусто</span>
+                                <div class="hub-micro text-danger">Нет в наличии</div>
                             {% elif item.quantity <= item.min_threshold %}
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 rounded-pill">Мало</span>
+                                <div class="hub-micro text-warning">Заканчивается</div>
                             {% else %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 rounded-pill">В норме</span>
+                                <div class="hub-micro text-success">В норме</div>
                             {% endif %}
                         </td>
                         <td class="text-end pe-4">
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="#" class="hub-btn hub-btn-ghost hub-btn-sm" title="История движения">
-                                    <i class="bi bi-clock-history"></i>
-                                </a>
-                                <a href="{% url 'web:inventory_add' business.id %}?variant={{ item.variant.id }}" class="hub-btn hub-btn-ghost hub-btn-sm text-primary" title="Поставка">
-                                    <i class="bi bi-plus-circle"></i>
+                                <a href="{% url 'web:inventory_add' business.id %}?variant={{ item.variant.id }}" class="hub-btn hub-btn-ghost hub-btn-sm text-white" title="Добавить поставку" style="border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05);">
+                                    <i class="bi bi-plus-lg"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i class="bi bi-search display-1 d-block mb-3 opacity-25"></i>
-                            По вашему запросу товаров не найдено.
+                        <td colspan="5" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="bi bi-search display-3 d-block mb-3 opacity-25 text-white"></i>
+                                <h5 class="text-white">По вашему запросу ничего не найдено</h5>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -124,4 +133,8 @@
         </div>
     </div>
 </div>
+
+<style>
+    .table-hover tbody tr:hover { background-color: #141414 !important; }
+</style>
 {% endblock %}

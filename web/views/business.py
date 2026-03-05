@@ -6,6 +6,7 @@ from django.contrib import messages
 
 @login_required
 def create_business_wizard(request):
+    """This func creates a new business"""
     if request.method == 'POST':
         name = request.POST.get('name')
         niche = request.POST.get('niche')
@@ -24,6 +25,7 @@ def create_business_wizard(request):
 
 @login_required
 def business_main_view(request, bus_id):
+    """This func shows your business"""
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
     enabled_modules = business.enabled_modules.values_list('slug', flat=True)
 
@@ -34,6 +36,7 @@ def business_main_view(request, bus_id):
 
 @login_required
 def delete_business(request, bus_id):
+    """This func deletes the selected business"""
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
     business.delete()
     messages.success(request, "Бизнес успешно удален!")

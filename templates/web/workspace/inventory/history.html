@@ -1,0 +1,169 @@
+{% extends 'workspace_base.html' %}
+
+{% block title %}История склада | {{ business.name }}{% endblock %}
+
+{% block workspace_content %}
+<div class="fade-in pb-5">
+
+    <!-- ЗАГОЛОВОК И ДЕЙСТВИЯ -->
+    <div class="mb-4 d-flex justify-content-between align-items-end border-bottom border-secondary border-opacity-25 pb-4">
+        <div>
+            <span class="section-label">Модуль инвентаризации</span>
+            <h1 class="hub-title mb-1">📋 Журнал движений</h1>
+            <p class="hub-subtitle mb-0">История всех приходов, продаж и списаний товаров.</p>
+        </div>
+        <div class="d-flex gap-3">
+            <!-- КНОПКА ПЕРЕХОДА ОБРАТНО К ОСТАТКАМ -->
+            <a href="{% url 'web:inventory_list' business.id %}" class="hub-btn hub-btn-ghost">
+                <i class="bi bi-box-seam"></i> Текущие остатки
+            </a>
+            <a href="{% url 'web:inventory_add' business.id %}" class="hub-btn hub-btn-primary">
+                <i class="bi bi-plus-lg"></i> Оформить поставку
+            </a>
+        </div>
+    </div>
+
+    <!-- ПАНЕЛЬ ФИЛЬТРОВ -->
+    <div class="hub-panel p-4 mb-4" style="background: #0d0d0d; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <form method="get" class="row g-3 align-items-end">
+            
+            <!-- Фильтр по дате -->
+            <div class="col-md-3">
+                <label class="section-label mb-2">Дата операции</label>
+                <input type="date" name="date" class="form-control" value="{{ filters.date|default:'' }}" style="background: #050505; color-scheme: dark;">
+            </div>
+
+            <!-- Фильтр по типу движения -->
+            <div class="col-md-4">
+                <label class="section-label mb-2">Тип движения</label>
+                <select name="type_movement" class="form-select" style="background: #050505;">
+                    <option value="all">Все операции</option>
+                    <option value="in" {% if filters.type_movement == 'in' %}selected{% endif %}>Поступления (IN)</option>
+                    <option value="sale" {% if filters.type_movement == 'sale' %}selected{% endif %}>Продажи (SALE)</option>
+                    <option value="loss" {% if filters.type_movement == 'loss' %}selected{% endif %}>Списания/Утери (LOSS)</option>
+                </select>
+            </div>
+
+            <!-- Кнопки фильтра -->
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="hub-btn hub-btn-ghost w-100 justify-content-center" style="border-color: rgba(255,255,255,0.1);">
+                    Применить
+                </button>
+                <a href="{% url 'web:inventory_history' business.id %}" class="hub-btn hub-btn-ghost px-3" title="Сбросить" style="border-color: rgba(255,255,255,0.1);">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ТАБЛИЦА ИСТОРИИ -->
+    <div class="hub-panel p-0 overflow-hidden" style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle" style="--bs-table-bg: #0a0a0a;">
+                <thead style="background: #050505;">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ДАТА И ВРЕМЯ</th>
+                        <th class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ТОВАР</th>
+                        <th class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ТИП ОПЕРАЦИИ</th>
+                        <th class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ИЗМЕНЕНИЕ</th>
+                        <th class="text-end pe-4 text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">ОСНОВАНИЕ / АВТОР</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in page_obj %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <!-- Дата -->
+                        <td class="ps-4 py-3">
+                            <span class="d-block text-white">{{ movement.created_at|date:"d.m.Y" }}</span>
+                            <span class="hub-micro text-muted">{{ movement.created_at|time:"H:i" }}</span>
+                        </td>
+                        
+                        <!-- Товар -->
+                        <td>
+                            <span class="fw-bold text-white d-block">{{ movement.variant.product.name }}</span>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                {% for key, value in movement.variant.attributes.items %}
+                                    <span class="badge" style="background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-weight: normal; font-size: 0.7rem;">
+                                        {{ value }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <!-- Тип операции -->
+                        <td>
+                            {% if movement.movement_type == 'IN' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-box-arrow-in-down me-1"></i> Приход</span>
+                            {% elif movement.movement_type == 'SALE' %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"><i class="bi bi-cart-check me-1"></i> Продажа</span>
+                            {% elif movement.movement_type == 'LOSS' %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1"><i class="bi bi-trash me-1"></i> Списание</span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">{{ movement.get_movement_type_display }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Количество (Цветной бейдж) -->
+                        <td>
+                            {% if movement.quantity > 0 %}
+                                <span class="fw-bold text-success fs-5">+{{ movement.quantity }}</span>
+                            {% else %}
+                                <span class="fw-bold text-danger fs-5">{{ movement.quantity }}</span>
+                            {% endif %}
+                            <span class="text-muted small">шт.</span>
+                        </td>
+
+                        <!-- Основание и Автор -->
+                        <td class="text-end pe-4">
+                            <span class="d-block text-white" style="font-size: 0.85rem;">{{ movement.reason|default:"Без комментария"|truncatechars:30 }}</span>
+                            <span class="hub-micro text-muted">
+                                <i class="bi bi-person-fill"></i> {{ movement.performed_by.first_name|default:"Система" }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="bi bi-clock-history display-3 d-block mb-3 opacity-25 text-white"></i>
+                                <h5 class="text-white">История пуста</h5>
+                                <p class="text-muted mx-auto mb-0" style="max-width: 400px;">По вашим критериям не найдено ни одной операции.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ПАГИНАЦИЯ -->
+    {% if page_obj.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        <div class="btn-group shadow-sm" style="border: 1px solid rgba(255,255,255,0.1); border-radius: var(--hub-radius-sm); overflow: hidden;">
+            
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if filters.date %}&date={{ filters.date }}{% endif %}{% if filters.type_movement %}&type_movement={{ filters.type_movement }}{% endif %}" class="btn btn-dark border-0 text-muted hover-text-white" style="background: #0d0d0d;">&laquo; Первая</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if filters.date %}&date={{ filters.date }}{% endif %}{% if filters.type_movement %}&type_movement={{ filters.type_movement }}{% endif %}" class="btn btn-dark border-0 text-white" style="background: #141414;">Назад</a>
+            {% endif %}
+
+            <span class="btn btn-dark border-0 disabled text-white fw-bold" style="background: #1a1a1a;">
+                Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if filters.date %}&date={{ filters.date }}{% endif %}{% if filters.type_movement %}&type_movement={{ filters.type_movement }}{% endif %}" class="btn btn-dark border-0 text-white" style="background: #141414;">Вперед</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if filters.date %}&date={{ filters.date }}{% endif %}{% if filters.type_movement %}&type_movement={{ filters.type_movement }}{% endif %}" class="btn btn-dark border-0 text-muted hover-text-white" style="background: #0d0d0d;">Последняя &raquo;</a>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<style>
+    .table-hover tbody tr:hover { background-color: #141414 !important; }
+    .hover-text-white:hover { color: #fff !important; }
+</style>
+{% endblock %}

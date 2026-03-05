@@ -1,5 +1,5 @@
 from django.db.models import F, Q
-from .models import StockItem
+from .models import StockItem, StockMovement
 
 def get_filtered_inventory(business, filters: dict):
     """
@@ -23,4 +23,22 @@ def get_filtered_inventory(business, filters: dict):
         queryset = queryset.filter(quantity__lte=0)
     elif stock_status == 'low':
         queryset = queryset.filter(quantity__gt=0, quantity__lte=F('min_threshold'))
+        
+    return queryset
+
+
+def get_filtered_movements(business, filters: dict):
+    """
+    Получение истории движений с фильтрацией.
+    """
+    queryset  = StockMovement.objects.filter(business=business).select_related('variant__product__product_type', 'performed_by')
+    
+    date = filters.get('date')
+    if date:
+        queryset = queryset.filter(created_at__date=date)
+
+    type_movement = filters.get('type_movement')
+    if type_movement and type_movement != 'all':
+        queryset = queryset.filter(movement_type=type_movement.upper())
+
     return queryset

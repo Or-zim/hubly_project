@@ -19,8 +19,7 @@ urlpatterns = [
     path('b/<int:bus_id>/catalog/product/<int:prod_id>/variant/edit/<int:variant_id>/', catalog.variant_edit_view, name='variant_edit'),
     path('b/<int:bus_id>/inventory/', inventory.inventory_list_view, name='inventory_list'),
     path('b/<int:bus_id>/inventory/add/', inventory.stock_add_view, name='inventory_add'),
-    
-
+    path('b/<int:bus_id>/inventory/history/', inventory.inventory_history_view, name='inventory_history'),
 ]
 
 app_name = 'web'
