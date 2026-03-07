@@ -1,6 +1,9 @@
 from django.db import models
 from django.conf import settings
 from businesses.models import Business
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 class ProductType(models.Model):
     """
@@ -54,3 +57,12 @@ class ProductVariant(models.Model):
         else:
             super().save(*args, **kwargs)
 
+@receiver(post_save, sender=ProductVariant)
+def create_stock_item(sender, instance, created, **kwargs):
+    from inventory.models import StockItem
+    if created:
+        StockItem.objects.create(
+            business=instance.product.business,
+            variant=instance,
+            quantity=0
+        )

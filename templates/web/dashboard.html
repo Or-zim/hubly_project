@@ -1,60 +1,158 @@
 {% extends 'base.html' %}
 
+{% block title %}Главная панель | Hubly{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10">
+<div class="fade-in py-3">
+
+    <!-- ВЕРХНИЙ БЛОК: Приветствие и Кнопка создания -->
+    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom border-secondary border-opacity-25 pb-4">
+        <div>
+            <span class="section-label">Центр управления</span>
+            <h1 class="hub-title mb-1">Добро пожаловать, {{ user.first_name }}</h1>
+            <p class="hub-subtitle mb-0">Ваша единая точка доступа ко всем проектам.</p>
+        </div>
+        <a href="{% url 'web:create_business' %}" class="hub-btn hub-btn-primary">
+            <i class="bi bi-plus-lg"></i> Новый бизнес
+        </a>
+    </div>
+
+    <!-- ОСНОВНАЯ СЕТКА -->
+    <div class="row g-4">
         
-        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
-        <div class="hub-panel">
+        <!-- ЛЕВАЯ КОЛОНКА (Основная часть) -->
+        <div class="col-lg-8">
             
-            <!-- ВЕРХНЯЯ ЧАСТЬ: Приветствие -->
-            <div class="mb-5">
-                <h1 class="hub-title">👋 Добро пожаловать, {{ user.first_name }}!</h1>
-                <p class="hub-subtitle">Управляйте вашими проектами и отслеживайте показатели в реальном времени.</p>
-            </div>
-
-            <!-- ЗАГОЛОВОК СЕКЦИИ И КНОПКА -->
-            <div class="header-actions">
-                <div>
-                    <span class="section-label">Ваши активные бизнесы</span>
+            <!-- Информационный блок / Путевая карта -->
+            <div class="hub-panel p-4 mb-4" style="background: linear-gradient(145deg, rgba(20,20,20,0.9), rgba(5,5,5,0.9)); border: 1px solid rgba(255,255,255,0.08);">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box mb-0" style="width: 40px; height: 40px; font-size: 1.2rem; background: var(--hub-white); color: #000;">
+                        <i class="bi bi-rocket-takeoff-fill"></i>
+                    </div>
+                    <h3 class="fs-5 fw-bold mb-0">Как работает Hubly?</h3>
                 </div>
-                <a href="{% url 'web:create_business' %}" class="hub-btn hub-btn-primary">
-                    <i class="bi bi-plus-lg"></i> Новый бизнес
-                </a>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.02);">
+                            <span class="text-primary fw-bold d-block mb-1">01. Создайте бизнес</span>
+                            <p class="hub-micro mb-0">Выберите нишу и нужные модули (склад, каталог).</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.02);">
+                            <span class="text-primary fw-bold d-block mb-1">02. Настройте</span>
+                            <p class="hub-micro mb-0">Добавьте товары, укажите остатки на складе.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.02);">
+                            <span class="text-primary fw-bold d-block mb-1">03. Управляйте</span>
+                            <p class="hub-micro mb-0">Следите за продажами через бота и веб-панель.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- СПИСОК БИЗНЕСОВ -->
-            <div class="business-list">
-                {% if businesses %}
-                    {% for b in businesses %}
-                        <div class="business-card">
-                            <div class="business-info">
-                                <span class="biz-name">{{ b.name }}</span>
-                                <span class="biz-date">Создан: {{ b.created_at|date:"d.m.Y" }}</span>
-                            </div>
-                            <div class="business-actions">
-                                <a href="{% url 'web:business_main' b.id %}" class="hub-btn hub-btn-ghost hub-btn-sm">
-                                    Открыть панель <i class="bi bi-arrow-right ms-2"></i>
-                                </a>
-                                <a href="{% url 'web:delete_business' b.id %}" class="hub-btn hub-btn-ghost hub-btn-sm text-danger"
-                                    title="Удалить"
-                                    onclick="return confirm('Вы уверены, что хотите полностью УДАЛИТЬ бизнес и все его данные?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+            <!-- Сетка карточек бизнесов -->
+            <h4 class="fs-5 fw-bold mb-3 mt-5">Ваши проекты</h4>
+            <div class="row row-cols-1 row-cols-md-2 g-3 stagger-children">
+                {% for b in businesses %}
+                <div class="col">
+                    <div class="business-card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div class="icon-box mb-0" style="width: 48px; height: 48px;">
+                                <i class="bi bi-building"></i>
                             </div>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Пустое состояние -->
-                    <div class="text-center py-5" style="background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px dashed var(--hub-border);">
-                        <i class="bi bi-shop-window display-4 text-muted mb-3 d-block"></i>
-                        <p class="mb-4">У вас пока нет зарегистрированных бизнесов</p>
-                        <a href="{% url 'web:create_business' %}" class="hub-btn hub-btn-primary">Создать первый бизнес</a>
+                        
+                        <span class="biz-name fs-5 mb-1">{{ b.name }}</span>
+                        <span class="biz-date d-block mb-4">{{ b.get_niche_display }} • Создан {{ b.created_at|date:"d.m.Y" }}</span>
+                        
+                        <a href="{% url 'web:business_main' b.id %}" class="hub-btn hub-btn-ghost w-100 text-center justify-content-center">
+                            Управление <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
                     </div>
-                {% endif %}
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="hub-panel text-center py-5 border-dashed">
+                        <i class="bi bi-inbox display-4 text-muted opacity-50 d-block mb-3"></i>
+                        <p class="text-muted">У вас пока нет созданных проектов.</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-
         </div>
+
+        <!-- ПРАВАЯ КОЛОНКА (Новостная строка) -->
+        <div class="col-lg-4">
+            <div class="hub-panel p-4 h-100">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+                    <i class="bi bi-broadcast text-primary fs-5"></i>
+                    <h3 class="fs-5 fw-bold mb-0">Обновления системы</h3>
+                </div>
+
+                <!-- Блок новостей -->
+                <div class="d-flex flex-column gap-4">
+                    
+                    <!-- Новость 1 -->
+                    <div class="update-item relative">
+                        <span class="badge bg-primary text-dark fw-bold mb-2">Новое</span>
+                        <h5 class="fs-6 fw-bold text-white mb-1">Релиз модуля «Каталог 2.0»</h5>
+                        <p class="hub-micro mb-2">Теперь вы можете создавать гибкие шаблоны товаров и использовать автогенерацию артикулов.</p>
+                        <span class="hub-micro text-muted opacity-50">Сегодня</span>
+                    </div>
+
+                    <!-- Новость 2 -->
+                    <div class="update-item relative">
+                        <span class="badge bg-dark border border-secondary text-muted mb-2">Обновление</span>
+                        <h5 class="fs-6 fw-bold text-white mb-1">Новый дизайн Hubly</h5>
+                        <p class="hub-micro mb-2">Мы полностью переработали интерфейс, добавив неоновые акценты и темную тему для комфортной работы.</p>
+                        <span class="hub-micro text-muted opacity-50">Вчера</span>
+                    </div>
+
+                    <!-- Новость 3 -->
+                    <div class="update-item relative">
+                        <span class="badge bg-dark border border-secondary text-muted mb-2">Анонс</span>
+                        <h5 class="fs-6 fw-bold text-white mb-1">Модуль «Касса»</h5>
+                        <p class="hub-micro mb-2">В следующей версии мы добавим интерфейс для быстрого оформления продаж.</p>
+                        <span class="hub-micro text-muted opacity-50">Ожидается скоро</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+
+<style>
+    /* Стили для карточек бизнеса (улучшенные) */
+    /* Стили для карточек бизнеса (Строгий монохром, без прозрачности) */
+    .business-card {
+        background: #0d0d0d; /* Плотный, абсолютно непрозрачный темный фон */
+        border: 1px solid rgba(255, 255, 255, 0.08); /* Едва заметная серая окантовка */
+        border-radius: var(--hub-radius-lg);
+        transition: all 0.3s var(--hub-transition);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .business-card:hover {
+        background: #141414; /* При наведении карточка становится на полтона светлее (серее) */
+        border-color: rgba(255, 255, 255, 0.25); /* Рамка становится ярче (белой/светло-серой) */
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8); /* Глубокая черная тень, отрывающая карточку от фона */
+    }
+        
+    /* Стили для ленты новостей */
+    .update-item {
+        padding-left: 15px;
+        border-left: 2px solid rgba(255,255,255,0.05);
+        transition: border-color 0.3s;
+    }
+    .update-item:hover {
+        border-left-color: var(--hub-primary);
+    }
+</style>
 {% endblock %}

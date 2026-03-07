@@ -16,9 +16,9 @@ class StockItem(models.Model):
 class StockMovement(models.Model):
     MOVEMENT_TYPES = (
         ('IN', 'Приход (Поставка)'),
-        ('OUT', 'Продажа'),
-        ('CORRECTION', 'Корректировка (Инвентаризация)'),
+        ('SALE', 'Продажа'),
         ('RETURN', 'Возврат от клиента'),
+        ('LOSS', 'Списание/Брак')
     )
     business = models.ForeignKey(Business, on_delete=models.CASCADE)
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)

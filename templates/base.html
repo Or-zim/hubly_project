@@ -7,7 +7,7 @@
     <title>{% block title %}Hubly CRM{% endblock %}</title>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,26 +20,36 @@
 </head>
 <body>
 
+    <!-- НЕЙРОСЕТЕВОЙ ФОН (Canvas) -->
+    <canvas id="neural-bg"></canvas>
+
     <!-- ВЕРХНЕЕ МЕНЮ -->
     <nav class="hub-navbar">
         <div class="container d-flex justify-content-between align-items-center">
             
             <!-- Слева: Лого -->
             <a href="{% url 'web:index' %}" class="d-flex align-items-center gap-3">
-                <div class="hub-logo-mark"></div>
+                <div class="hub-logo-mark">
+                    <div class="hub-logo-pulse"></div>
+                </div>
                 <div class="hub-logo-text">Hubly</div>
+                <span class="hub-version-badge">CRM</span>
             </a>
 
             <!-- Справа: Навигация -->
             <div class="d-flex align-items-center gap-4">
                 {% if user.is_authenticated %}
                     <a href="{% url 'web:index' %}" class="hub-nav-link">
-                        <i class="bi bi-folder"></i> Мои бизнесы
+                        <i class="bi bi-grid-1x2"></i> 
+                        <span class="nav-link-text">Бизнесы</span>
                     </a>
                     
-                    <a href="{% url 'web:create_business' %}" class="hub-nav-link text-primary fw-bold">
-                        <i class="bi bi-plus-lg"></i> Создать бизнес
+                    <a href="{% url 'web:create_business' %}" class="hub-nav-link">
+                        <i class="bi bi-plus-lg"></i> 
+                        <span class="nav-link-text">Создать</span>
                     </a>
+
+                    <div class="hub-nav-divider"></div>
 
                     <!-- Профиль -->
                     <div class="hub-user-chip">
@@ -52,27 +62,40 @@
                         </div>
                     </div>
                     
-                    <a href="/admin/logout/" class="hub-nav-link" title="Выйти">
-                        <i class="bi bi-box-arrow-right fs-5"></i>
+                    <a href="/admin/logout/" class="hub-nav-link hub-nav-logout" title="Выйти">
+                        <i class="bi bi-arrow-bar-right fs-5"></i>
                     </a>
                 {% else %}
+                    <a href="#features" class="hub-nav-link">Возможности</a>
+                    <a href="#about" class="hub-nav-link">О платформе</a>
                     <a href="https://t.me/твой_бот" class="hub-btn hub-btn-primary">
-                        Запустить Hubly
+                        <i class="bi bi-telegram"></i> Начать бесплатно
                     </a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
+    <!-- Мерцающая линия -->
+    <div class="shimmer-line"></div>
+
+    <!-- HERO СЕКЦИЯ (показывается если нет авторизации или на главной) -->
+    {% block hero %}{% endblock %}
+
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <main class="container py-4">
         
-        <!-- Уведомления (Django Messages) -->
+        <!-- Уведомления -->
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-dismissible fade show border-0 rounded-4 bg-primary text-white mb-4" role="alert">
-                    <i class="bi bi-info-circle me-2"></i> {{ message }}
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                <div class="hub-alert scale-in" role="alert">
+                    <div class="hub-alert-icon">
+                        <i class="bi bi-info-circle"></i>
+                    </div>
+                    <span>{{ message }}</span>
+                    <button type="button" class="hub-alert-close" data-bs-dismiss="alert">
+                        <i class="bi bi-x"></i>
+                    </button>
                 </div>
             {% endfor %}
         {% endif %}
@@ -80,7 +103,230 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- ФУТЕР -->
+    <footer class="hub-footer">
+        <div class="container">
+            <div class="shimmer-line mb-4"></div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="hub-logo-mark" style="width:20px;height:20px;">
+                            <div class="hub-logo-pulse"></div>
+                        </div>
+                        <span class="fw-700" style="letter-spacing:2px;font-size:0.85rem;">HUBLY</span>
+                    </div>
+                    <p class="hub-footer-text">
+                        Интеллектуальная CRM-платформа нового поколения для управления 
+                        клиентами, продажами и ростом вашего бизнеса.
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <div class="hub-footer-label">Платформа</div>
+                    <a href="#" class="hub-footer-link">Возможности</a>
+                    <a href="#" class="hub-footer-link">Тарифы</a>
+                    <a href="#" class="hub-footer-link">Интеграции</a>
+                </div>
+                <div class="col-md-2">
+                    <div class="hub-footer-label">Поддержка</div>
+                    <a href="#" class="hub-footer-link">Документация</a>
+                    <a href="#" class="hub-footer-link">Telegram</a>
+                    <a href="#" class="hub-footer-link">FAQ</a>
+                </div>
+                <div class="col-md-4">
+                    <div class="hub-footer-label">Статус системы</div>
+                    <div class="hub-status-row">
+                        <div class="hub-status-dot hub-status-online"></div>
+                        <span>Все системы работают</span>
+                    </div>
+                    <div class="hub-footer-stats">
+                        <div class="hub-footer-stat">
+                            <span class="hub-footer-stat-value">99.9%</span>
+                            <span class="hub-footer-stat-label">Uptime</span>
+                        </div>
+                        <div class="hub-footer-stat">
+                            <span class="hub-footer-stat-value">&lt;50ms</span>
+                            <span class="hub-footer-stat-label">Response</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="shimmer-line mt-4 mb-3"></div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="hub-footer-copy">&copy; 2025 Hubly. Все права защищены.</span>
+                <div class="d-flex gap-3">
+                    <a href="#" class="hub-footer-social"><i class="bi bi-telegram"></i></a>
+                    <a href="#" class="hub-footer-social"><i class="bi bi-github"></i></a>
+                    <a href="#" class="hub-footer-social"><i class="bi bi-twitter-x"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- НЕЙРОСЕТЕВАЯ АНИМАЦИЯ -->
+    <script>
+    (function() {
+        const canvas = document.getElementById('neural-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height, nodes, mouse;
+
+        const CONFIG = {
+            nodeCount: 120,
+            connectionDistance: 150,
+            nodeSpeed: 0.3,
+            nodeSize: 1.5,
+            lineWidth: 0.5,
+            mouseRadius: 200,
+            pulseSpeed: 0.02,
+            nodeColor: 'rgba(255, 255, 255,',
+            lineColor: 'rgba(255, 255, 255,',
+        };
+
+        mouse = { x: -1000, y: -1000 };
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        function createNodes() {
+            nodes = [];
+            for (let i = 0; i < CONFIG.nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * CONFIG.nodeSpeed,
+                    vy: (Math.random() - 0.5) * CONFIG.nodeSpeed,
+                    radius: Math.random() * CONFIG.nodeSize + 0.5,
+                    pulse: Math.random() * Math.PI * 2,
+                    energy: 0,
+                });
+            }
+        }
+
+        function update() {
+            nodes.forEach(node => {
+                node.x += node.vx;
+                node.y += node.vy;
+                node.pulse += CONFIG.pulseSpeed;
+
+                // Расстояние до мыши
+                const dx = mouse.x - node.x;
+                const dy = mouse.y - node.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < CONFIG.mouseRadius) {
+                    node.energy = Math.min(1, node.energy + 0.05);
+                    // Лёгкое притяжение к курсору
+                    node.vx += dx * 0.00005;
+                    node.vy += dy * 0.00005;
+                } else {
+                    node.energy *= 0.97;
+                }
+
+                // Ограничение скорости
+                const speed = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
+                if (speed > CONFIG.nodeSpeed * 2) {
+                    node.vx = (node.vx / speed) * CONFIG.nodeSpeed * 2;
+                    node.vy = (node.vy / speed) * CONFIG.nodeSpeed * 2;
+                }
+
+                // Отскок от стен
+                if (node.x < 0 || node.x > width) node.vx *= -1;
+                if (node.y < 0 || node.y > height) node.vy *= -1;
+
+                node.x = Math.max(0, Math.min(width, node.x));
+                node.y = Math.max(0, Math.min(height, node.y));
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Соединения
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < CONFIG.connectionDistance) {
+                        const opacity = (1 - dist / CONFIG.connectionDistance) * 0.15;
+                        const energy = Math.max(nodes[i].energy, nodes[j].energy);
+                        const finalOpacity = opacity + energy * 0.3;
+
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.strokeStyle = CONFIG.lineColor + finalOpacity + ')';
+                        ctx.lineWidth = CONFIG.lineWidth + energy * 1.5;
+                        ctx.stroke();
+
+                        // «Импульс» бегущий по линии
+                        if (energy > 0.3) {
+                            const pulsePos = (Math.sin(nodes[i].pulse * 2) + 1) / 2;
+                            const px = nodes[i].x + (nodes[j].x - nodes[i].x) * pulsePos;
+                            const py = nodes[i].y + (nodes[j].y - nodes[i].y) * pulsePos;
+
+                            ctx.beginPath();
+                            ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+                            ctx.fillStyle = CONFIG.nodeColor + (energy * 0.6) + ')';
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            // Узлы
+            nodes.forEach(node => {
+                const pulseScale = 1 + Math.sin(node.pulse) * 0.3;
+                const baseOpacity = 0.3 + node.energy * 0.5;
+
+                // Свечение
+                if (node.energy > 0.2) {
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius * 4 * pulseScale, 0, Math.PI * 2);
+                    ctx.fillStyle = CONFIG.nodeColor + (node.energy * 0.1) + ')';
+                    ctx.fill();
+                }
+
+                // Основная точка
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius * pulseScale, 0, Math.PI * 2);
+                ctx.fillStyle = CONFIG.nodeColor + baseOpacity + ')';
+                ctx.fill();
+            });
+        }
+
+        function animate() {
+            update();
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // Слушатели событий
+        window.addEventListener('resize', () => {
+            resize();
+            createNodes();
+        });
+
+        document.addEventListener('mousemove', e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
+
+        // Запуск
+        resize();
+        createNodes();
+        animate();
+    })();
+    </script>
 </body>
 </html>

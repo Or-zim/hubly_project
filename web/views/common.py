@@ -4,6 +4,7 @@ from users.models import AuthToken
 
 
 def magic_login(request, token):
+    """This func creates a new auth_token for loggin in to the system"""
     auth_token = get_object_or_404(AuthToken, id=token)
     if not auth_token.is_valid():
         return render(request, 'web/error.html', {'message': 'Ссылка устарела ⌛'})
@@ -12,6 +13,7 @@ def magic_login(request, token):
     return redirect('web:index')
 
 def index_view(request):
+    """This func shows the main window and the main page"""
     if request.user.is_authenticated:
         businesses = request.user.owned_businesses.all()
         return render(request, 'web/dashboard.html', {

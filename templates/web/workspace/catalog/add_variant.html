@@ -1,45 +1,92 @@
 {% extends 'workspace_base.html' %}
 
+{% block title %}Добавить вариант | {{ product.name }}{% endblock %}
+
 {% block workspace_content %}
-<div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="hub-form-card">
-            <h2 class="hub-title">➕ Добавить вариант</h2>
-            <p class="hub-subtitle">Вы добавляете новый экземпляр для: <b>{{ product.name }}</b></p>
+<div class="row justify-content-center mt-4 fade-in pb-5">
+    <div class="col-md-10 col-lg-8">
+        
+        <!-- МОНОЛИТНАЯ КАРТОЧКА ФОРМЫ -->
+        <div class="hub-form-card p-4 p-md-5" style="background: #0d0d0d; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            
+            <!-- Заголовок -->
+            <div class="mb-5 border-bottom border-secondary border-opacity-25 pb-4">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="icon-box mb-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.05); color: #fff;">
+                        <i class="bi bi-node-plus fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="section-label mb-1">Новый экземпляр</span>
+                        <h2 class="hub-title mb-0 text-white">{{ product.name }}</h2>
+                    </div>
+                </div>
+                <p class="hub-subtitle mt-3 mb-0" style="padding-left: 62px;">
+                    Укажите характеристики и стоимость для новой вариации этого товара.
+                </p>
+            </div>
 
             <form method="post">
                 {% csrf_token %}
                 
-                <!-- ДИНАМИЧЕСКИЕ ПОЛЯ ИЗ ШАБЛОНА -->
-                <div class="p-4 rounded-4 mb-4 bg-dark border border-secondary border-opacity-25">
-                    <span class="section-label text-primary">Характеристики ({{ product.product_type.name }})</span>
-                    <div class="row g-3">
+                <!-- БЛОК ХАРАКТЕРИСТИК (ДИНАМИЧЕСКИЙ) -->
+                <div class="mb-5 p-4 rounded-4" style="background: #141414; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <i class="bi bi-sliders text-muted fs-5"></i>
+                        <span class="section-label mb-0 text-white">Характеристики ({{ product.product_type.name }})</span>
+                    </div>
+                    
+                    <div class="row g-4">
                         {% for field in product.product_type.fields %}
                         <div class="col-md-6">
-                            <label class="form-label small text-muted">{{ field.label }}</label>
-                            <!-- Имя инпута: field_имя (как мы и договорились во вьюхе) -->
-                            <input type="text" name="field_{{ field.name }}" class="form-control" placeholder="Введите {{ field.label|lower }}" required>
+                            <label class="form-label">{{ field.label }}</label>
+                            <input type="text" 
+                                   name="field_{{ field.name }}" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Введите {{ field.label|lower }}" 
+                                   required 
+                                   style="background: #050505;">
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-muted small">
+                            Для этого типа товаров не настроены дополнительные характеристики.
                         </div>
                         {% endfor %}
                     </div>
                 </div>
 
-                <!-- ЦЕНА И АРТИКУЛ -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="section-label">Цена за этот вариант (₽)</label>
-                        <input type="number" name="price" class="form-control" step="0.01" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="section-label">Артикул (необязательно)</label>
-                        <input type="text" name="sku" class="form-control" placeholder="Оставьте пустым для автогенерации">
+                <!-- БЛОК ЦЕНЫ -->
+                <div class="mb-5">
+                    <label class="section-label mb-3">Стоимость</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Цена за этот вариант (₽)</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-secondary text-muted" style="background: #050505; border-color: rgba(255,255,255,0.08) !important;">
+                                    <i class="bi bi-currency-rupee"></i>
+                                </span>
+                                <input type="number" 
+                                       name="price" 
+                                       class="form-control form-control-lg border-start-0" 
+                                       step="0.01" 
+                                       placeholder="0.00" 
+                                       value="{{ product.base_price|stringformat:'.2f' }}"
+                                       required 
+                                       style="background: #050505;">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between pt-4 border-top border-secondary border-opacity-25">
-                    <a href="{% url 'web:product_detail' business.id product.id %}" class="hub-btn hub-btn-ghost">Отмена</a>
-                    <button type="submit" class="hub-btn hub-btn-primary px-5">Сохранить экземпляр</button>
+                <!-- КНОПКИ ДЕЙСТВИЙ -->
+                <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-4 mt-5">
+                    <a href="{% url 'web:product_detail' business.id product.id %}" class="hub-btn hub-btn-ghost px-4 py-3">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                    <button type="submit" class="hub-btn hub-btn-primary px-5 py-3">
+                        Сохранить экземпляр <i class="bi bi-check2-all ms-2"></i>
+                    </button>
                 </div>
+
             </form>
         </div>
     </div>

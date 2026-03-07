@@ -1,86 +1,164 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row g-0" style="margin-top: -40px; min-height: calc(100vh - 70px);">
-    
-    <!-- SIDEBAR (Левая панель) -->
-    <div class="col-md-3 col-lg-2 hub-sidebar">
-        <div class="py-4 px-3">
-            <span class="section-label mb-4 d-block">Модули бизнеса</span>
+<!-- Обертка, которая ломает стандартный контейнер и растягивается на весь экран -->
+<div class="workspace-layout">
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ (САЙДБАР) -->
+    <aside class="workspace-sidebar">
+        
+        <!-- ТОТ САМЫЙ БЛОК "ОБЗОР": Профиль и инфо -->
+        <div class="sidebar-user-profile mb-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="hub-user-avatar" style="width: 42px; height: 42px; font-size: 1.2rem;">
+                    {{ user.first_name|slice:":1"|upper }}
+                </div>
+                <div>
+                    <div class="fw-bold text-white lh-1 fs-6">{{ user.first_name }}</div>
+                    <div class="hub-micro mt-1 text-muted">@{{ user.username }}</div>
+                </div>
+            </div>
             
-            <nav class="nav flex-column gap-2">
-                                <!-- Ссылка на главную бизнеса -->
-                <a href="{% url 'web:business_main' business.id %}" class="sidebar-link {% if request.resolver_match.url_name == 'business_main' %}active{% endif %}">
-                    <i class="bi bi-grid-1x2"></i> Главная
-                </a>
-                {% if "catalog" in enabled_modules %}
-                <!-- Ссылка на список товаров -->
-                <a href="{% url 'web:catalog_index' business.id %}" class="sidebar-link {% if 'catalog' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="bi bi-tag"></i> Каталог
-                </a>
-                {% endif %}
-                {% if "inventory" in enabled_modules %}
-                 <a href="#" class="sidebar-link {% if 'inventory' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="bi bi-tag"></i> Склад
-                </a>
-                {% endif %}
-
-                {% if "sales" in enabled_modules %}
-                <a href="#" class="sidebar-link">
-                    <i class="bi bi-cash-stack"></i> Продажи
-                </a>
-                {% endif %}
-
-                {% if "consumables" in enabled_modules %}
-                <a href="#" class="sidebar-link">
-                    <i class="bi bi-droplet"></i> Расходники
-                </a>
-                {% endif %}
-                
-                <hr class="border-secondary opacity-25">
-                
-                <a href="#" class="sidebar-link text-muted">
-                    <i class="bi bi-gear"></i> Настройки
-                </a>
-            </nav>
+            <!-- Информационный текст -->
+            <div class="sidebar-info-box p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1);">
+                <i class="bi bi-info-circle text-primary mb-2 d-block fs-5"></i>
+                <p class="hub-micro mb-0" style="line-height: 1.5; color: var(--hub-text-muted);">
+                    Вы находитесь в рабочем пространстве бизнеса <strong class="text-white">{{ business.name }}</strong>. 
+                    Ниже представлены доступные модули управления.
+                </p>
+            </div>
         </div>
-    </div>
 
-    <!-- MAIN CONTENT (Правая зона) -->
-    <div class="col-md-9 col-lg-10 p-4">
+        <div class="sidebar-divider my-4"></div>
+
+        <span class="section-label px-3 mb-3">Модули системы</span>
+        
+        <!-- Вкладки-ссылки -->
+        <nav class="nav flex-column gap-2 px-2">
+            <a href="{% url 'web:business_main' business.id %}" 
+               class="hub-sidebar-link {% if request.resolver_match.url_name == 'business_main' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i> Обзор
+            </a>
+
+            {% if "catalog" in enabled_modules %}
+            <a href="{% url 'web:catalog_index' business.id %}" 
+               class="hub-sidebar-link {% if 'catalog' in request.path %}active{% endif %}">
+                <i class="bi bi-folder2-open"></i> Каталог
+            </a>
+            {% endif %}
+
+            {% if "inventory" in enabled_modules %}
+            <a href="{% url 'web:inventory_list' business.id %}" 
+               class="hub-sidebar-link {% if 'inventory' in request.path %}active{% endif %}">
+                <i class="bi bi-box-seam"></i> Склад
+            </a>
+            {% endif %}
+
+            <!-- Кнопка настроек (всегда внизу) -->
+            <a href="#" class="hub-sidebar-link text-muted mt-4" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+                <i class="bi bi-gear"></i> Настройки бизнеса
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ПРАВАЯ ЧАСТЬ (ГЛАВНЫЙ КОНТЕНТ) -->
+    <main class="workspace-content">
         <div class="fade-in">
             {% block workspace_content %}{% endblock %}
         </div>
-    </div>
+    </main>
 
 </div>
 
+<!-- СТИЛИ ИМЕННО ДЛЯ САЙДБАРА -->
 <style>
-    .hub-sidebar {
-        background: rgba(15, 23, 42, 0.4);
-        border-right: 1px solid var(--hub-border);
-        backdrop-filter: blur(10px);
+    /* Хак для растягивания на весь экран поверх контейнера из base.html */
+    .workspace-layout {
+        display: flex;
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        margin-top: -24px; /* Убираем отступ сверху */
+        min-height: calc(100vh - 70px); /* Высота экрана минус навбар */
+        background: rgba(0, 0, 0, 0.4);
     }
-    .sidebar-link {
+
+    /* Настройки левой панели */
+    .workspace-sidebar {
+        width: 320px; /* Ширина сайдбара */
+        flex-shrink: 0;
+        background: var(--hub-bg-elevated);
+        border-right: 1px solid var(--hub-border);
+        backdrop-filter: blur(20px);
+        padding: 30px 20px;
+        position: sticky;
+        top: 70px; /* Прилипает под навбаром */
+        height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+
+    /* Настройки правой зоны */
+    .workspace-content {
+        flex-grow: 1;
+        padding: 40px 60px;
+        max-width: calc(100vw - 320px); /* Чтобы контент не уезжал за экран */
+    }
+
+    /* Ссылки меню */
+    .hub-sidebar-link {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         padding: 12px 16px;
-        color: var(--hub-text-muted);
-        text-decoration: none;
-        border-radius: 12px;
-        transition: 0.2s;
+        border-radius: var(--hub-radius-md);
         font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--hub-text-secondary);
+        transition: all 0.3s var(--hub-transition);
+        text-decoration: none;
     }
-    .sidebar-link i { font-size: 1.1rem; }
-    .sidebar-link:hover {
+
+    .hub-sidebar-link i {
+        font-size: 1.2rem;
+        transition: transform 0.3s var(--hub-transition);
+    }
+
+    .hub-sidebar-link:hover {
         background: rgba(255, 255, 255, 0.05);
-        color: #fff;
+        color: var(--hub-white);
+        transform: translateX(5px);
     }
-    .sidebar-link.active {
-        background: var(--hub-primary);
-        color: #fff;
-        box-shadow: 0 4px 15px var(--hub-primary-glow);
+
+    .hub-sidebar-link:hover i {
+        transform: scale(1.1);
+        color: var(--hub-white);
+    }
+
+    /* Активная вкладка */
+    .hub-sidebar-link.active {
+        background: var(--hub-white);
+        color: #000 !important;
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Тонкая линия разделителя */
+    .sidebar-divider {
+        height: 1px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    }
+
+    /* Адаптив: прячем сайдбар на мобилках (сделаем бургер позже) */
+    @media (max-width: 992px) {
+        .workspace-sidebar {
+            display: none;
+        }
+        .workspace-content {
+            padding: 20px;
+            max-width: 100vw;
+        }
     }
 </style>
 {% endblock %}

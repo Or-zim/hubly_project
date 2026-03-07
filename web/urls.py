@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import common, catalog, business
+from .views import common, catalog, business, inventory
 urlpatterns = [
     path('login/<uuid:token>/', common.magic_login, name='magic_login'),
     path('', common.index_view, name='index'),
@@ -17,7 +17,9 @@ urlpatterns = [
     path('b/<int:bus_id>/catalog/product/<int:prod_id>/variant/add/', catalog.variant_add_view, name='variant_add'),
     path('b/<int:bus_id>/catalog/product/<int:prod_id>/variant/delete/<int:variant_id>/', catalog.variant_delete, name='variant_delete'),
     path('b/<int:bus_id>/catalog/product/<int:prod_id>/variant/edit/<int:variant_id>/', catalog.variant_edit_view, name='variant_edit'),
-
+    path('b/<int:bus_id>/inventory/', inventory.inventory_list_view, name='inventory_list'),
+    path('b/<int:bus_id>/inventory/add/', inventory.stock_add_view, name='inventory_add'),
+    path('b/<int:bus_id>/inventory/history/', inventory.inventory_history_view, name='inventory_history'),
 ]
 
 app_name = 'web'
