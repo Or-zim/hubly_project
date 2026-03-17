@@ -17,6 +17,7 @@ class ProductType(models.Model):
     )
     name = models.CharField(max_length=100)
     fields = models.JSONField(default=list)
+    is_service = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} ({self.business.name})"
@@ -25,6 +26,7 @@ class Product(models.Model):
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True)
+    is_service = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -59,10 +61,17 @@ class ProductVariant(models.Model):
 
 @receiver(post_save, sender=ProductVariant)
 def create_stock_item(sender, instance, created, **kwargs):
-    from inventory.models import StockItem
     if created:
-        StockItem.objects.create(
-            business=instance.product.business,
-            variant=instance,
-            quantity=0
-        )
+        if instance.product.is_service:
+            return
+        
+        business = instance.product.business
+        has_inventory = business.enabled_modules.filter(slug='inventory').exists()
+
+        if has_inventory:
+            from inventory.models import StockItem
+            StockItem.objects.get_or_create(
+                business=business,
+                variant=instance,
+                defaults={'quantity': 0}
+            )

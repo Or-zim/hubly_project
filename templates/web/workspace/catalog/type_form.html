@@ -2,62 +2,160 @@
 
 {% block workspace_content %}
 <div class="row justify-content-center">
-    <div class="col-lg-7">
+    <div class="col-lg-8">
         <div class="hub-form-card">
-            <h2 class="hub-title">🛠 Создание нового типа</h2>
-            <p class="hub-subtitle text-muted">Определите, какие поля (размер, цвет, объем) будут у товаров этого типа.</p>
+            <h2 class="hub-title">🛠 Создание нового шаблона</h2>
+            <p class="hub-subtitle text-muted">Определите, какие поля (размер, цвет, объем) будут у товаров или какое описание будут иметь услуги.</p>
 
             <form method="post">
                 {% csrf_token %}
                 
-                <!-- Название типа -->
-                <div class="mb-4">
-                    <label class="section-label">Название типа</label>
+                                <div class="mb-4">
+                    <label class="section-label">Название шаблона</label>
                     <input type="text" name="type_name" class="form-control form-control-lg" 
-                           placeholder="Напр: Верхняя одежда или Напитки" required>
+                           placeholder="Напр: Обувь или Услуги мастера" required>
                 </div>
 
-                <!-- Контейнер для полей -->
+                <!-- НОВЫЙ БЛОК: Выбор типа шаблона -->
+                <div class="mb-5 p-3 rounded-3" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1);">
+                    <div class="form-check form-switch d-flex align-items-center gap-2 mb-0">
+                        <input class="form-check-input mt-0" type="checkbox" role="switch" id="isServiceSwitch" name="is_service" style="width: 40px; height: 20px; cursor: pointer;">
+                        <label class="form-check-label text-white" for="isServiceSwitch" style="cursor: pointer; padding-top: 2px;">
+                            Это шаблон для Услуг <span class="text-muted fw-normal small">(Складской учет будет отключен)</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="mb-4">
                     <label class="section-label d-block mb-3">Характеристики (поля)</label>
+                    
+                    <!-- КОНТЕЙНЕР ДЛЯ ПОЛЕЙ -->
                     <div id="fields-container">
-                        <!-- Сюда JS будет добавлять новые строки -->
-                        <div class="input-group mb-2">
-                            <input type="text" name="attribute_labels" class="form-control" placeholder="Напр: Размер">
-                            <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()">
-                                <i class="bi bi-trash"></i>
+                        
+                        <!-- СТАРТОВАЯ СТРОКА (ОДНО ПОЛЕ) -->
+                        <div class="d-flex align-items-center gap-3 mb-3 field-row">
+                            <!-- Ввод названия (Размер, Вес и тд) -->
+                            <input type="text" name="attribute_labels" class="form-control form-control-lg flex-grow-1" placeholder="Название (напр: Размер)" style="background: #050505;" required>
+                            
+                            <!-- СКРЫТОЕ ПОЛЕ: Тип данных (по умолчанию text) -->
+                            <input type="hidden" name="attribute_types" value="text" class="type-hidden-input">
+                            
+                            <!-- СКРЫТОЕ ПОЛЕ: Единицы измерения (появляется только для чисел) -->
+                            <input type="text" name="attribute_units" class="form-control form-control-lg unit-input fade-in" placeholder="Ед. изм. (кг, мл)" style="max-width: 140px; background: #050505; display: none;">
+                            
+                            <!-- КАСТОМНЫЙ ПЕРЕКЛЮЧАТЕЛЬ -->
+                            <div class="hub-type-switcher d-flex p-1 rounded-3" style="background: #050505; border: 1px solid rgba(255,255,255,0.08); width: 160px; height: 48px; flex-shrink: 0;">
+                                <div class="type-btn active flex-grow-1 d-flex align-items-center justify-content-center rounded-2" data-type="text">Текст</div>
+                                <div class="type-btn flex-grow-1 d-flex align-items-center justify-content-center rounded-2" data-type="number">Число</div>
+                            </div>
+
+                            <!-- Кнопка удаления -->
+                            <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center" onclick="this.closest('.field-row').remove()" style="width: 48px; height: 48px; flex-shrink: 0;">
+                                <i class="bi bi-trash fs-5"></i>
                             </button>
                         </div>
+
                     </div>
                     
-                    <button type="button" class="hub-btn hub-btn-ghost w-100 mt-2" id="add-field-btn">
-                        <i class="bi bi-plus-circle"></i> Добавить еще одну характеристику
+                    <!-- Кнопка добавить поле -->
+                    <button type="button" class="hub-btn hub-btn-ghost w-100 mt-2 py-3" id="add-field-btn" style="border: 1px dashed rgba(255,255,255,0.2);">
+                        <i class="bi bi-plus-circle me-2"></i> Добавить еще одну характеристику
                     </button>
                 </div>
 
-                <!-- Кнопки -->
-                <div class="d-flex justify-content-between pt-4 border-top border-secondary border-opacity-25">
-                    <a href="{% url 'web:product_type_list' business.id %}" class="hub-btn hub-btn-ghost">Отмена</a>
-                    <button type="submit" class="hub-btn hub-btn-primary px-5">Сохранить шаблон</button>
+                <div class="d-flex justify-content-between pt-4 border-top border-secondary border-opacity-25 mt-5">
+                    <a href="{% url 'web:product_type_list' business.id %}" class="hub-btn hub-btn-ghost py-3 px-4">Отмена</a>
+                    <button type="submit" class="hub-btn hub-btn-primary py-3 px-5">Сохранить шаблон</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<!-- CSS стили -->
+<style>
+    .fade-in {
+        animation: fadeInRow 0.3s ease-out forwards;
+    }
+    @keyframes fadeInRow {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .type-btn {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--hub-text-muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+    
+    .type-btn:hover:not(.active) {
+        color: var(--hub-white);
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .type-btn.active {
+        background: var(--hub-white);
+        color: var(--hub-bg);
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+        font-weight: 700;
+    }
+</style>
+
+<!-- JavaScript логика -->
 <script>
-    // Скрипт для динамического добавления инпутов
+    // 1. Создание новых строк при нажатии "Добавить"
     document.getElementById('add-field-btn').addEventListener('click', function() {
         const container = document.getElementById('fields-container');
         const div = document.createElement('div');
-        div.className = 'input-group mb-2';
+        div.className = 'd-flex align-items-center gap-3 mb-3 field-row fade-in';
         div.innerHTML = `
-            <input type="text" name="attribute_labels" class="form-control" placeholder="Название поля">
-            <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()">
-                <i class="bi bi-trash"></i>
+            <input type="text" name="attribute_labels" class="form-control form-control-lg flex-grow-1" placeholder="Название (напр: Объем)" style="background: #050505;" required>
+            
+            <input type="hidden" name="attribute_types" value="text" class="type-hidden-input">
+            
+            <input type="text" name="attribute_units" class="form-control form-control-lg unit-input fade-in" placeholder="Ед. изм. (кг, мл)" style="max-width: 140px; background: #050505; display: none;">
+            
+            <div class="hub-type-switcher d-flex p-1 rounded-3" style="background: #050505; border: 1px solid rgba(255,255,255,0.08); width: 160px; height: 48px; flex-shrink: 0;">
+                <div class="type-btn active flex-grow-1 d-flex align-items-center justify-content-center rounded-2" data-type="text">Текст</div>
+                <div class="type-btn flex-grow-1 d-flex align-items-center justify-content-center rounded-2" data-type="number">Число</div>
+            </div>
+
+            <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center" onclick="this.closest('.field-row').remove()" style="width: 48px; height: 48px; flex-shrink: 0;">
+                <i class="bi bi-trash fs-5"></i>
             </button>
         `;
         container.appendChild(div);
+    });
+
+    // 2. Логика переключателя "Текст / Число"
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('type-btn')) {
+            const clickedBtn = event.target;
+            const row = clickedBtn.closest('.field-row');
+            const switcherContainer = clickedBtn.closest('.hub-type-switcher');
+            
+            // Визуально переключаем активную кнопку
+            switcherContainer.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            clickedBtn.classList.add('active');
+            
+            // Получаем выбранный тип (text или number)
+            const selectedType = clickedBtn.getAttribute('data-type');
+            
+            // Меняем значение скрытого поля для отправки на бэкенд
+            row.querySelector('.type-hidden-input').value = selectedType;
+            
+            // Показываем или скрываем поле "Единицы измерения"
+            const unitInput = row.querySelector('.unit-input');
+            if (selectedType === 'number') {
+                unitInput.style.display = 'block';
+            } else {
+                unitInput.style.display = 'none';
+                unitInput.value = ''; // Очищаем поле, если вернулись на текст
+            }
+        }
     });
 </script>
 {% endblock %}

@@ -68,7 +68,7 @@
                 {% else %}
                     <a href="#features" class="hub-nav-link">Возможности</a>
                     <a href="#about" class="hub-nav-link">О платформе</a>
-                    <a href="https://t.me/твой_бот" class="hub-btn hub-btn-primary">
+                    <a href="https://t.me/Onh0r0sh" class="hub-btn hub-btn-primary">
                         <i class="bi bi-telegram"></i> Начать бесплатно
                     </a>
                 {% endif %}
@@ -82,24 +82,8 @@
     <!-- HERO СЕКЦИЯ (показывается если нет авторизации или на главной) -->
     {% block hero %}{% endblock %}
 
-    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <!-- ОСНОВНОЙ КОНТЕНТ (Теперь без прыгающих уведомлений) -->
     <main class="container py-4">
-        
-        <!-- Уведомления -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="hub-alert scale-in" role="alert">
-                    <div class="hub-alert-icon">
-                        <i class="bi bi-info-circle"></i>
-                    </div>
-                    <span>{{ message }}</span>
-                    <button type="button" class="hub-alert-close" data-bs-dismiss="alert">
-                        <i class="bi bi-x"></i>
-                    </button>
-                </div>
-            {% endfor %}
-        {% endif %}
-
         {% block content %}{% endblock %}
     </main>
 
@@ -152,7 +136,7 @@
             </div>
             <div class="shimmer-line mt-4 mb-3"></div>
             <div class="d-flex justify-content-between align-items-center">
-                <span class="hub-footer-copy">&copy; 2025 Hubly. Все права защищены.</span>
+                <span class="hub-footer-copy">&copy; 2026 Hubly. Все права защищены.</span>
                 <div class="d-flex gap-3">
                     <a href="#" class="hub-footer-social"><i class="bi bi-telegram"></i></a>
                     <a href="#" class="hub-footer-social"><i class="bi bi-github"></i></a>
@@ -162,10 +146,49 @@
         </div>
     </footer>
 
+    <!-- === ВСПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ (TOASTS) ПОВЕРХ ВСЕГО === -->
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="toast align-items-center text-white bg-dark border-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}secondary{% endif %}" 
+                     role="alert" aria-live="assertive" aria-atomic="true" 
+                     data-bs-delay="4000" style="border-width: 1px; border-left-width: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <div class="d-flex">
+                        <div class="toast-body d-flex align-items-center gap-2">
+                            {% if message.tags == 'error' %}
+                                <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                            {% elif message.tags == 'success' %}
+                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+                            {% endif %}
+                            <span style="font-size: 0.9rem; font-weight: 500;">{{ message }}</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- НЕЙРОСЕТЕВАЯ АНИМАЦИЯ -->
+    <!-- Скрипт активации всплывашек Toasts -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            var toastList = toastElList.map(function(toastEl) {
+                var toast = new bootstrap.Toast(toastEl)
+                toast.show()
+                return toast
+            })
+        });
+    </script>
+
+    <!-- НЕЙРОСЕТЕВАЯ АНИМАЦИЯ ФОНА -->
     <script>
     (function() {
         const canvas = document.getElementById('neural-bg');
@@ -212,28 +235,24 @@
                 node.y += node.vy;
                 node.pulse += CONFIG.pulseSpeed;
 
-                // Расстояние до мыши
                 const dx = mouse.x - node.x;
                 const dy = mouse.y - node.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist < CONFIG.mouseRadius) {
                     node.energy = Math.min(1, node.energy + 0.05);
-                    // Лёгкое притяжение к курсору
                     node.vx += dx * 0.00005;
                     node.vy += dy * 0.00005;
                 } else {
                     node.energy *= 0.97;
                 }
 
-                // Ограничение скорости
                 const speed = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
                 if (speed > CONFIG.nodeSpeed * 2) {
                     node.vx = (node.vx / speed) * CONFIG.nodeSpeed * 2;
                     node.vy = (node.vy / speed) * CONFIG.nodeSpeed * 2;
                 }
 
-                // Отскок от стен
                 if (node.x < 0 || node.x > width) node.vx *= -1;
                 if (node.y < 0 || node.y > height) node.vy *= -1;
 
@@ -245,7 +264,6 @@
         function draw() {
             ctx.clearRect(0, 0, width, height);
 
-            // Соединения
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     const dx = nodes[i].x - nodes[j].x;
@@ -264,7 +282,6 @@
                         ctx.lineWidth = CONFIG.lineWidth + energy * 1.5;
                         ctx.stroke();
 
-                        // «Импульс» бегущий по линии
                         if (energy > 0.3) {
                             const pulsePos = (Math.sin(nodes[i].pulse * 2) + 1) / 2;
                             const px = nodes[i].x + (nodes[j].x - nodes[i].x) * pulsePos;
@@ -279,12 +296,10 @@
                 }
             }
 
-            // Узлы
             nodes.forEach(node => {
                 const pulseScale = 1 + Math.sin(node.pulse) * 0.3;
                 const baseOpacity = 0.3 + node.energy * 0.5;
 
-                // Свечение
                 if (node.energy > 0.2) {
                     ctx.beginPath();
                     ctx.arc(node.x, node.y, node.radius * 4 * pulseScale, 0, Math.PI * 2);
@@ -292,7 +307,6 @@
                     ctx.fill();
                 }
 
-                // Основная точка
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, node.radius * pulseScale, 0, Math.PI * 2);
                 ctx.fillStyle = CONFIG.nodeColor + baseOpacity + ')';
@@ -306,7 +320,6 @@
             requestAnimationFrame(animate);
         }
 
-        // Слушатели событий
         window.addEventListener('resize', () => {
             resize();
             createNodes();
@@ -322,7 +335,6 @@
             mouse.y = -1000;
         });
 
-        // Запуск
         resize();
         createNodes();
         animate();

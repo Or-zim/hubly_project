@@ -38,6 +38,7 @@ def business_main_view(request, bus_id):
 def delete_business(request, bus_id):
     """This func deletes the selected business"""
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
+    business.orders.all().delete()
     business.delete()
     messages.success(request, "Бизнес успешно удален!")
 

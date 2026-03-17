@@ -5,17 +5,25 @@
     <div class="col-lg-7">
         <div class="hub-form-card">
             <h2 class="hub-title">🛍 Новая модель: {{ scheme.name }}</h2>
-            <p class="hub-subtitle">Вы создаете общую карточку для группы товаров типа «{{ scheme.name }}».</p>
+            <p class="hub-subtitle">Вы создаете общую карточку для группы товаров или услуг шаблона «{{ scheme.name }}».</p>
 
             <form method="post">
                 {% csrf_token %}
                 
                 <!-- Название модели -->
                 <div class="mb-4">
-                    <label class="section-label">Название модели</label>
+                    <label class="section-label">Название позиции</label>
                     <input type="text" name="name" class="form-control form-control-lg" 
-                           placeholder="Напр: Nike Air Max 2024" required>
-                    <small class="text-muted">Это название будет общим для всех размеров и цветов.</small>
+                           placeholder="Напр: Nike Air Max или Мужская стрижка" required>
+                    
+                    <!-- Подсказка от системы -->
+                    <div class="mt-2">
+                        {% if scheme.is_service %}
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle"><i class="bi bi-scissors"></i> Создается как Услуга</span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><i class="bi bi-box-seam"></i> Создается как Физический товар</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <!-- Описание модели -->
@@ -27,7 +35,7 @@
 
                 <div class="d-flex justify-content-between pt-4 border-top border-secondary border-opacity-25">
                     <a href="{% url 'web:product_list_by_type' business.id scheme.id %}" class="hub-btn hub-btn-ghost">Отмена</a>
-                    <button type="submit" class="hub-btn hub-btn-primary px-5">Создать карточку</button>
+                    <button type="submit" class="hub-btn hub-btn-primary px-5">Создать модель</button>
                 </div>
             </form>
         </div>

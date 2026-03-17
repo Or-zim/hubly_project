@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from catalog.models import ProductType, Product, ProductVariant
-
+from web.forms import ProductVariantForm
 
 
 @login_required
@@ -36,17 +36,28 @@ def product_type_add_view(request, bus_id):
     if request.method == 'POST':
         name = request.POST.get('type_name')
         label_list = request.POST.getlist('attribute_labels')
+        type_list = request.POST.getlist('attribute_types')
+        unit_list = request.POST.getlist('attribute_units')
+        is_service_flag = request.POST.get('is_service') == 'on'
+
         fields_data = []
-        for item in label_list:
-            if item.strip():
-                tech_name = item.lower().replace(" ", "_")
-                dict_item={
+        for i in range(len(label_list)):
+            label = label_list[i]
+            if label.strip():
+                field_type = type_list[i] if i < len(type_list) else 'text'
+                unit = unit_list[i] if i < len(unit_list) else ''
+                
+                tech_name = label.lower().replace(" ", "_")
+                dict_item = {
                     'name': tech_name,
-                    'label': item
+                    'label': label,
+                    'type': field_type,
+                    'unit': unit.strip() if field_type == 'number' else '', 
+                    
                 }
                 fields_data.append(dict_item)
             
-        ProductType.objects.create(business=business, name=name, fields=fields_data)
+        ProductType.objects.create(business=business, name=name, fields=fields_data, is_service=is_service_flag)
         messages.success(request, f"Шаблон под названием {name} успешно создан")
         return redirect('web:product_type_list', bus_id=business.id)
     
@@ -60,6 +71,9 @@ def delete_product_type(request, bus_id, scheme_id):
     """This func deletes  your scheme"""
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
     scheme = get_object_or_404(ProductType, business=business, id=scheme_id)
+    if scheme.products.exists():
+        messages.error(request, "Нельзя удалить шаблон! К нему уже привязаны товары.")
+        return redirect('web:product_type_list', bus_id=business.id)
     scheme.delete()
     messages.success(request, "Шаблон успешно удален!")
     return redirect('web:product_type_list', bus_id=business.id)
@@ -70,10 +84,14 @@ def product_add_view(request, bus_id, scheme_id):
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
     scheme = get_object_or_404(ProductType, business=business, id=scheme_id)
     if request.method == "POST":
+        is_service_flag = request.POST.get('is_service') == 'on'
+
         product = Product.objects.create(
             business=business,
             product_type=scheme,
             name=request.POST.get('name'),
+            description=request.POST.get('description', ''),
+            is_service=scheme.is_service
             )
         messages.success(request, f"Товар «{product.name}» добавлен в каталог!")
         return redirect('web:product_list_by_type', bus_id=business.id, type_id=scheme.id)
@@ -126,32 +144,38 @@ def product_detail_view(request, bus_id, prod_id):
 
 @login_required
 def variant_add_view(request, bus_id, prod_id):
-    """This func creates a new variant product"""
+    """This func adds new product varint your catalog"""
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
     product = get_object_or_404(Product, business=business, id=prod_id)
+    fields_schema = product.product_type.fields
+
     if request.method == "POST":
+        form = ProductVariantForm(request.POST, product_type_fields=fields_schema)
+        
+        if form.is_valid():
+            attr_dict = {}
+            for item in fields_schema:
+                key = item['name']
+                attr_dict[key] = form.cleaned_data[f'field_{key}']
 
-        fields = product.product_type.fields
-        attr_dict = {}
+            variant = ProductVariant.objects.create(
+                product=product,
+                price=form.cleaned_data['price'],
+                attributes=attr_dict
+            )
 
-        for item in fields:
-            key = item['name']
-            value = request.POST.get(f'field_{key}')
-            attr_dict[key] = value
-
-
-        variant = ProductVariant.objects.create(
-            product=product,
-            price=request.POST.get('price'),
-            attributes=attr_dict
-        )
-
-        messages.success(request, f"Экземпляр добавлен в каталог!")
-        return redirect('web:product_detail', bus_id=business.id, prod_id=product.id)
+            messages.success(request, f"Экземпляр добавлен в каталог!")
+            return redirect('web:product_detail', bus_id=business.id, prod_id=product.id)
+        else:
+            messages.error(request, "Ошибка валидации. Проверьте правильность заполнения полей.")
+    else:
+        
+        form = ProductVariantForm(product_type_fields=fields_schema)
     
     return render(request, 'web/workspace/catalog/add_variant.html', {
         'business': business,
         'product': product,
+        'form': form,
         'enabled_modules': business.enabled_modules.values_list('slug', flat=True)
     })
 

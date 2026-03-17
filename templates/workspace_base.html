@@ -24,7 +24,6 @@
                 <i class="bi bi-info-circle text-primary mb-2 d-block fs-5"></i>
                 <p class="hub-micro mb-0" style="line-height: 1.5; color: var(--hub-text-muted);">
                     Вы находитесь в рабочем пространстве бизнеса <strong class="text-white">{{ business.name }}</strong>. 
-                    Ниже представлены доступные модули управления.
                 </p>
             </div>
         </div>
@@ -35,18 +34,60 @@
         
         <!-- Вкладки-ссылки -->
         <nav class="nav flex-column gap-2 px-2">
+            
+            <!-- 1. ОБЗОР -->
             <a href="{% url 'web:business_main' business.id %}" 
                class="hub-sidebar-link {% if request.resolver_match.url_name == 'business_main' %}active{% endif %}">
                 <i class="bi bi-grid-1x2"></i> Обзор
             </a>
 
+            <!-- 2. КАТАЛОГ (ВЫПАДАЮЩИЙ СПИСОК / АККОРДЕОН) -->
             {% if "catalog" in enabled_modules %}
-            <a href="{% url 'web:catalog_index' business.id %}" 
-               class="hub-sidebar-link {% if 'catalog' in request.path %}active{% endif %}">
-                <i class="bi bi-folder2-open"></i> Каталог
+            
+                <!-- Главная кнопка-триггер аккордеона -->
+                <a href="#catalogSubmenu" data-bs-toggle="collapse" 
+                   aria-expanded="{% if 'catalog' in request.path %}true{% else %}false{% endif %}"
+                   class="hub-sidebar-link d-flex justify-content-between align-items-center {% if 'catalog' in request.path and request.resolver_match.url_name == 'catalog_index' %}active{% endif %}"
+                   style="cursor: pointer;">
+                    <div>
+                        <i class="bi bi-folder2-open"></i> Каталог
+                    </div>
+                    <!-- Иконка стрелочки -->
+                    <i class="bi bi-chevron-down toggle-icon" style="font-size: 0.75rem; transition: transform 0.3s;"></i>
+                </a>
+
+                <!-- Само выпадающее меню -->
+                <div class="collapse {% if 'catalog' in request.path %}show{% endif %}" id="catalogSubmenu">
+                    <!-- Полоска слева для визуальной иерархии -->
+                    <ul class="nav flex-column ms-3 mt-1 mb-2 ps-3 border-start border-secondary border-opacity-25 gap-1">
+                        
+                        <li class="nav-item">
+                            <a href="{% url 'web:catalog_index' business.id %}" 
+                               class="nav-link p-2 small text-muted hover-text-white rounded-2 {% if request.resolver_match.url_name == 'catalog_index' or 'product' in request.path %}bg-dark text-white fw-bold{% endif %}" style="transition: all 0.2s;">
+                               <i class="bi bi-box me-2"></i> Товары и услуги
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="{% url 'web:product_type_list' business.id %}" 
+                               class="nav-link p-2 small text-muted hover-text-white rounded-2 {% if 'product_type' in request.path %}bg-dark text-white fw-bold{% endif %}" style="transition: all 0.2s;">
+                               <i class="bi bi-sliders me-2"></i> Шаблоны (Типы)
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- 3. ЗАКАЗЫ (ПРОДАЖИ) -->
+            {% if "sales" in enabled_modules %}
+            <a href="{% url 'web:order_list' business.id %}" 
+               class="hub-sidebar-link {% if 'sales' in request.path %}active{% endif %}">
+                <i class="bi bi-cart3"></i> Заказы (Касса)
             </a>
             {% endif %}
 
+            <!-- 4. СКЛАД -->
             {% if "inventory" in enabled_modules %}
             <a href="{% url 'web:inventory_list' business.id %}" 
                class="hub-sidebar-link {% if 'inventory' in request.path %}active{% endif %}">
@@ -121,7 +162,8 @@
         text-decoration: none;
     }
 
-    .hub-sidebar-link i {
+    /* Убираем эффект увеличения для маленькой крутящейся стрелочки */
+    .hub-sidebar-link i:not(.toggle-icon) {
         font-size: 1.2rem;
         transition: transform 0.3s var(--hub-transition);
     }
@@ -132,7 +174,7 @@
         transform: translateX(5px);
     }
 
-    .hub-sidebar-link:hover i {
+    .hub-sidebar-link:hover i:not(.toggle-icon) {
         transform: scale(1.1);
         color: var(--hub-white);
     }
@@ -144,13 +186,23 @@
         box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
     }
 
+    /* Анимация стрелочки в меню Каталога */
+    .hub-sidebar-link[aria-expanded="true"] .toggle-icon {
+        transform: rotate(180deg);
+    }
+    
+    .hover-text-white:hover {
+        color: #fff !important;
+        background: rgba(255,255,255,0.05);
+    }
+
     /* Тонкая линия разделителя */
     .sidebar-divider {
         height: 1px;
         background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%);
     }
 
-    /* Адаптив: прячем сайдбар на мобилках (сделаем бургер позже) */
+    /* Адаптив: прячем сайдбар на мобилках */
     @media (max-width: 992px) {
         .workspace-sidebar {
             display: none;

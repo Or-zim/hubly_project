@@ -1,5 +1,5 @@
 {% extends 'workspace_base.html' %}
-
+{% load custom_filters %}
 {% block title %}Добавить вариант | {{ product.name }}{% endblock %}
 
 {% block workspace_content %}
@@ -28,55 +28,58 @@
             <form method="post">
                 {% csrf_token %}
                 
-                <!-- БЛОК ХАРАКТЕРИСТИК (ДИНАМИЧЕСКИЙ) -->
-                <div class="mb-5 p-4 rounded-4" style="background: #141414; border: 1px solid rgba(255,255,255,0.05);">
-                    <div class="d-flex align-items-center gap-3 mb-4">
-                        <i class="bi bi-sliders text-muted fs-5"></i>
-                        <span class="section-label mb-0 text-white">Характеристики ({{ product.product_type.name }})</span>
-                    </div>
-                    
-                    <div class="row g-4">
-                        {% for field in product.product_type.fields %}
+                            <!-- БЛОК ХАРАКТЕРИСТИК (ДИНАМИЧЕСКИЙ ЧЕРЕЗ ФОРМУ) -->
+            <div class="mb-5 p-4 rounded-4" style="background: #141414; border: 1px solid rgba(255,255,255,0.05);">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <i class="bi bi-sliders text-muted fs-5"></i>
+                    <span class="section-label mb-0 text-white">Характеристики ({{ product.product_type.name }})</span>
+                </div>
+                
+                <div class="row g-4">
+                    {% for field in form %}
+                        {% if field.name != 'price' %}
                         <div class="col-md-6">
                             <label class="form-label">{{ field.label }}</label>
-                            <input type="text" 
-                                   name="field_{{ field.name }}" 
-                                   class="form-control form-control-lg" 
-                                   placeholder="Введите {{ field.label|lower }}" 
-                                   required 
-                                   style="background: #050505;">
+                            
+                            <!-- Проверяем, есть ли data-unit -->
+                            {% if field.field.widget.attrs|dict_get:'data-unit' %}
+                                <div class="input-group">
+                                    {{ field }}
+                                    <span class="input-group-text border-secondary text-muted" style="background: #050505; border-color: rgba(255,255,255,0.08) !important;">
+                                        {{ field.field.widget.attrs|dict_get:'data-unit' }}
+                                    </span>
+                                </div>
+                            {% else %}
+                                {{ field }} <!-- Если это текст, рисуем как обычно -->
+                            {% endif %}
+                            
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                            {% endif %}
                         </div>
-                        {% empty %}
-                        <div class="col-12 text-muted small">
-                            Для этого типа товаров не настроены дополнительные характеристики.
-                        </div>
-                        {% endfor %}
-                    </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
 
-                <!-- БЛОК ЦЕНЫ -->
-                <div class="mb-5">
-                    <label class="section-label mb-3">Стоимость</label>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label class="form-label">Цена за этот вариант (₽)</label>
-                            <div class="input-group">
-                                <span class="input-group-text border-secondary text-muted" style="background: #050505; border-color: rgba(255,255,255,0.08) !important;">
-                                    <i class="bi bi-currency-rupee"></i>
-                                </span>
-                                <input type="number" 
-                                       name="price" 
-                                       class="form-control form-control-lg border-start-0" 
-                                       step="0.01" 
-                                       placeholder="0.00" 
-                                       value="{{ product.base_price|stringformat:'.2f' }}"
-                                       required 
-                                       style="background: #050505;">
-                            </div>
+            <!-- БЛОК ЦЕНЫ -->
+            <div class="mb-5">
+                <label class="section-label mb-3">Стоимость</label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.price.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text border-secondary text-muted" style="background: #050505; border-color: rgba(255,255,255,0.08) !important;">
+                                <i class="bi bi-currency-rupee"></i>
+                            </span>
+                            {{ form.price }} <!-- Джанго сам вставит <input type="number"> для цены -->
                         </div>
+                        <!-- Ошибка цены (например: "Убедитесь, что значение больше или равно 0.01") -->
+                        {% if form.price.errors %}
+                            <div class="text-danger small mt-2"><i class="bi bi-exclamation-triangle"></i> {{ form.price.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
-
+            </div>
                 <!-- КНОПКИ ДЕЙСТВИЙ -->
                 <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-4 mt-5">
                     <a href="{% url 'web:product_detail' business.id product.id %}" class="hub-btn hub-btn-ghost px-4 py-3">

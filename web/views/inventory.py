@@ -5,7 +5,7 @@ from inventory.models import StockItem, StockMovement
 from catalog.models import ProductVariant, Product
 from inventory.selectors import get_filtered_inventory, get_filtered_movements
 from django.core.paginator import Paginator
-
+from django.db.models import F
 @login_required
 def inventory_list_view(request, bus_id):
     """This func shows your inventory"""
@@ -27,32 +27,27 @@ from django.db import transaction
 @login_required
 def stock_add_view(request, bus_id, variant_id=None):
     """This func adds the items on the inventory"""
-
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
     
-   
-    variant = None
-    if variant_id:
-        variant = get_object_or_404(ProductVariant, id=variant_id, product__business=business)
+
+    selected_variant_id = request.GET.get('variant')
+    if selected_variant_id:
+        try:
+            selected_variant_id = int(selected_variant_id)
+        except ValueError:
+            selected_variant_id = None
 
     if request.method == "POST":
-        
-        if not variant:
-            v_id = request.POST.get('variant')
-            variant = get_object_or_404(ProductVariant, id=v_id, product__business=business)
-        
+        v_id = request.POST.get('variant')
+        variant = get_object_or_404(ProductVariant, id=v_id, product__business=business)
         qty = int(request.POST.get('quantity', 0))
         
         with transaction.atomic():
-            
-            item, created = StockItem.objects.get_or_create(
-                business=business, 
-                variant=variant
-            )
-            item.quantity += qty
+            item, created = StockItem.objects.get_or_create(business=business, variant=variant)
+            from django.db.models import F
+            item.quantity = F('quantity') + qty
             item.save()
 
-           
             StockMovement.objects.create(
                 business=business,
                 variant=variant,
@@ -62,16 +57,18 @@ def stock_add_view(request, bus_id, variant_id=None):
                 performed_by=request.user
             )
 
-        messages.success(request, "Склад обновлен!")
+        messages.success(request, "Склад успешно обновлен!")
         return redirect('web:inventory_list', bus_id=business.id)
 
-    
-    all_variants = ProductVariant.objects.filter(product__business=business).select_related('product')
+    all_variants = ProductVariant.objects.filter(
+        product__business=business, 
+        product__is_service=False
+    ).select_related('product')
 
     return render(request, 'web/workspace/inventory/add_stock.html', {
         'business': business,
-        'variant': variant,      
         'variants': all_variants,
+        'selected_variant_id': selected_variant_id,
         'enabled_modules': business.enabled_modules.values_list('slug', flat=True)
     })
 

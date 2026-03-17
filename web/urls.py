@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import common, catalog, business, inventory
+from .views import common, catalog, business, inventory, sales
 urlpatterns = [
     path('login/<uuid:token>/', common.magic_login, name='magic_login'),
     path('', common.index_view, name='index'),
@@ -20,6 +20,15 @@ urlpatterns = [
     path('b/<int:bus_id>/inventory/', inventory.inventory_list_view, name='inventory_list'),
     path('b/<int:bus_id>/inventory/add/', inventory.stock_add_view, name='inventory_add'),
     path('b/<int:bus_id>/inventory/history/', inventory.inventory_history_view, name='inventory_history'),
+    path('b/<int:bus_id>/sales/', sales.order_list_view, name='order_list'),
+    path('b/<int:bus_id>/sales/create/', sales.order_create_view, name='order_create'),
+    path('b/<int:bus_id>/sales/<int:order_id>/', sales.order_detail_view, name='order_detail'),
+    path('b/<int:bus_id>/sales/<int:order_id>/add/<int:variant_id>/', sales.add_item_to_order_view, name='add_item_to_order'),
+    path('b/<int:bus_id>/sales/<int:order_id>/delete/', sales.order_delete_view, name='order_delete'),
+    path('b/<int:bus_id>/sales/<int:order_id>/pay/', sales.order_pay_view, name='order_pay'),
+    path('b/<int:bus_id>/sales/<int:order_id>/remove/<int:item_id>/', sales.remove_item_from_order_view, name='remove_item_from_order'),
+    path('b/<int:bus_id>/sales/<int:order_id>/clear/', sales.clear_order_view, name='clear_order'),
+    path('b/<int:bus_id>/sales/<int:order_id>/cancel/', sales.cancel_order_view, name='cancel_order')
 ]
 
 app_name = 'web'

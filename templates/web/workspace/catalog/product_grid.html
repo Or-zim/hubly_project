@@ -14,7 +14,7 @@
         
         <div class="d-flex justify-content-between align-items-end">
             <div>
-                <span class="section-label">Тип товара: {{ p_type.name }}</span>
+                <span class="section-label">Шаблон товара: {{ p_type.name }}</span>
                 <h1 class="hub-title mb-0">Список моделей</h1>
             </div>
             
@@ -42,7 +42,12 @@
                     
                     <!-- Текстовая информация -->
                     <h3 class="fs-6 fw-bold text-white mb-1 text-truncate" title="{{ product.name }}">{{ product.name }}</h3>
-                    
+                        <!-- Бейдж "Услуга" -->
+                    {% if product.is_service %}
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1" style="font-size: 0.65rem; display: inline-block;">Услуга (без склада)</span>
+                    {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle mt-1" style="font-size: 0.65rem; display: inline-block;">Физический товар</span>
+                    {% endif %}
                     <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
                         <span class="badge" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--hub-text-muted); font-weight: normal;">
                             {{ product.variants.count }} вар.
