@@ -2,7 +2,9 @@ from django.urls import path
 from .views import common, catalog, business, inventory, sales
 urlpatterns = [
     path('login/<uuid:token>/', common.magic_login, name='magic_login'),
+    path('logout/', common.logout_user, name='logout'),
     path('', common.index_view, name='index'),
+    path('auth/telegram/', common.telegram_login_widget_view, name='telegram_widget_auth'),
     path('create-business/', business.create_business_wizard, name='create_business'),
     path('b/<int:bus_id>/', business.business_main_view, name='business_main'),
     path('b/<int:bus_id>/delete/', business.delete_business, name='delete_business'),

@@ -2,6 +2,7 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message, CallbackQuery
 from users.models import User
+from users.services import async_create_user
 
 class AuthMiddleware(BaseMiddleware):
     async def __call__(
@@ -15,37 +16,13 @@ class AuthMiddleware(BaseMiddleware):
         if not tg_user:
             return await handler(event, data)
         
-        safe_username = tg_user.username if tg_user.username else f"user_{tg_user.id}"
-        
-        current_data = {
-            'first_name': tg_user.first_name or '',
-            'last_name': tg_user.last_name or '',
-            'username': safe_username, 
-        }
-
-
-        user, created = await User.objects.aget_or_create(
-            telegram_id=tg_user.id,
-            defaults=current_data
+        user = await async_create_user(
+            telegram_id=tg_user.id, 
+            first_name = tg_user.first_name,
+            last_name=tg_user.last_name,
+            username=tg_user.username
         )
 
-        if not created:
-            has_changes = False
-            
-            if user.username != safe_username:
-                user.username = safe_username
-                has_changes = True
-                
-            if user.first_name != current_data['first_name']:
-                user.first_name = current_data['first_name']
-                has_changes = True
-                
-            if user.last_name != current_data['last_name']:
-                user.last_name = current_data['last_name']
-                has_changes = True
-            
-            if has_changes:
-                await user.asave()  
 
 
         if user.is_blocked:

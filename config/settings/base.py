@@ -19,6 +19,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
     'users',
     'clients',
     'transactions',
@@ -32,6 +35,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -87,3 +91,37 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+# ==========================================
+# НАСТРОЙКИ REST FRAMEWORK & CORS & JWT
+# ==========================================
+
+# Настройки CORS (Cross-Origin Resource Sharing)
+# На этапе разработки разрешаем запросы с любых фронтендов
+CORS_ALLOW_ALL_ORIGINS = True 
+
+# В продакшене потом поменяешь на False и укажешь конкретные домены:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "https://tvoy-frontend-domen.com",
+# ]
+
+# Настройки Django REST Framework
+REST_FRAMEWORK = {
+    # По умолчанию все эндпоинты будут требовать авторизации (кроме тех, где мы явно разрешим)
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    # Способ авторизации (мы переходим на JWT вместо стандартных сессий)
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# Настройки времени жизни токенов (необязательно, но полезно для удобства)
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Access токен живет час
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Refresh токен (для обновления) живет неделю
+    'AUTH_HEADER_TYPES': ('Bearer',),               # Формат заголовка: "Authorization: Bearer <token>"
+}

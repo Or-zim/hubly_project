@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from businesses.models import Business, Module
 from django.contrib import messages
+from businesses.selectors import get_business_dashboard_stats 
 
 
 @login_required
@@ -28,9 +29,10 @@ def business_main_view(request, bus_id):
     """This func shows your business"""
     business = get_object_or_404(request.user.owned_businesses, id=bus_id)
     enabled_modules = business.enabled_modules.values_list('slug', flat=True)
-
+    stats = get_business_dashboard_stats(business)
     return render(request, 'web/workspace/dashboard.html', {
         'business': business,
+        'stats': stats,
         'enabled_modules': enabled_modules
     })
 
